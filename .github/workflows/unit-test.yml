@@ -1,0 +1,50 @@
+---
+name: unit-test
+on:
+  push:
+    paths:
+      - 'include/**'
+      - 'src/**'
+      - 'tests/**'
+      - 'CMakeLists.txt'
+      - 'conanfile.py'
+      - 'conandata.yml'
+      - '.github/workflows/unit-test.yml'
+      - '.github/workflows/unit-test-post.yml'
+    branches:
+      - main
+      - dev
+      - '[0-9]+.[0-9]+'
+
+  pull_request:
+    types: [ opened, reopened, synchronize ]
+    paths:
+      - 'include/**'
+      - 'tests/**'
+      - 'CMakeLists.txt'
+      - 'conanfile.py'
+      - 'conandata.yml'
+      - '.github/workflows/unit-test.yml'
+      - '.github/workflows/unit-test-post.yml'
+    branches:
+      - main
+      - dev
+      - 'NP-*'
+      - 'CURA-*'
+      - 'PP-*'
+      - '[0-9]+.[0-9]+'
+
+permissions:
+  contents: read
+
+env:
+  CONAN_LOGIN_USERNAME: ${{ secrets.CONAN_USER }}
+  CONAN_PASSWORD: ${{ secrets.CONAN_PASS }}
+
+jobs:
+  testing:
+    name: Run unit tests
+    uses: ultimaker/cura-workflows/.github/workflows/unit-test.yml@main
+    with:
+      test_use_ctest: true
+      runs_on: 'ubuntu-latest'
