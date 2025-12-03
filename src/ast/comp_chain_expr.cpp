@@ -65,7 +65,7 @@ namespace CuraFormulaeEngine::ast
         {
             return zeus::unexpected(right_value_result.error());
         }
-       const auto right_value = right_value_result.value();
+       const auto& right_value = right_value_result.value();
 
         eval::Result comparison_result;
         switch (operators[i])
