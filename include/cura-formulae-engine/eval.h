@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <functional>
 
 #ifdef EMSCRIPTEN
 #include <emscripten/val.h>
@@ -41,7 +42,7 @@ using Result = zeus::expected<Value, Error>;
 
 struct Value
 {
-    using fn_t = Result(*)(const std::vector<Value>&);
+    using fn_t = std::function<Result(const std::vector<Value>&)>;
 
     std::variant<bool, double, std::int64_t, std::string, std::vector<Value>, fn_t, std::nullptr_t> value = nullptr;
 
