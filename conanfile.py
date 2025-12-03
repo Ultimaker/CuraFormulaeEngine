@@ -72,8 +72,9 @@ class CuraFormulaeEngineConan(ConanFile):
     def export_sources(self):
         copy(self, "CMakeLists.txt", self.recipe_folder, self.export_sources_folder)
         copy(self, "*", os.path.join(self.recipe_folder, "src"), os.path.join(self.export_sources_folder, "src"))
-        copy(self, "*", os.path.join(self.recipe_folder, "include"),
-             os.path.join(self.export_sources_folder, "include"))
+        copy(self, "*", os.path.join(self.recipe_folder, "include"), os.path.join(self.export_sources_folder, "include"))
+        if not self.conf.get("tools.build:skip_test", False, check_type=bool):
+            copy(self, "*", os.path.join(self.recipe_folder, "tests"), os.path.join(self.export_sources_folder, "tests"))
 
     def generate(self):
         tc = CMakeToolchain(self)
