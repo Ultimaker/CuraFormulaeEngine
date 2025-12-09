@@ -1,0 +1,10 @@
+#pragma once
+
+#include "cura-formulae-engine/eval.h"
+
+namespace CuraFormulaeEngine::env
+{
+
+extern const eval::Value::fn_t math_cos;
+
+} // namespace CuraFormulaeEngine::env
