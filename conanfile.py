@@ -82,8 +82,6 @@ class CuraFormulaeEngineConan(ConanFile):
         tc.variables["CURA_FORMULA_VERSION_VERSION"] = f'{self.version}'
         tc.variables["ENABLE_TESTS"] = not self.conf.get("tools.build:skip_test", False, check_type=bool)
 
-        tc.variables["WITH_CLI"] = self.options.get_safe("with_cli", False)
-
         if is_msvc(self):
             tc.variables["USE_MSVC_RUNTIME_LIBRARY_DLL"] = not is_msvc_static_runtime(self)
 
