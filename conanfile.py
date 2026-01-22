@@ -71,14 +71,10 @@ class CuraFormulaeEngineConan(ConanFile):
             self.test_requires("catch2/[>=3.4.0]")
 
     def config_options(self):
-        super().config_options()
-
         if self.settings.os == "Windows":
             del self.options.fPIC
     
     def configure(self):
-        super().configure()
-
         if self.options.shared:
             self.options.rm_safe("fPIC")
     
