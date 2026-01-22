@@ -21,10 +21,14 @@ class CuraFormulaeEngineConan(ConanFile):
     options = {
         "enable_extensive_warnings": [True, False],
         "with_apps": [True, False],
+        "shared": [True, False],
+        "fPIC": [True, False],
     }
     default_options = {
         "enable_extensive_warnings": False,
         "with_apps": False,
+        "shared": True,
+        "fPIC": True,
     }
 
     def set_version(self):
@@ -66,6 +70,18 @@ class CuraFormulaeEngineConan(ConanFile):
         if not self.conf.get("tools.build:skip_test", False, check_type=bool):
             self.test_requires("catch2/[>=3.4.0]")
 
+    def config_options(self):
+        super().config_options()
+
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+    
+    def configure(self):
+        super().configure()
+
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+    
     def export(self):
         update_conandata(self, {"version": self.version})
 
