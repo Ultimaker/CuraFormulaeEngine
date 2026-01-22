@@ -108,3 +108,7 @@ endif ()
 if (ENABLE_TESTS)
     add_subdirectory(tests)
 endif ()
+
+if(WIN32)
+    set_target_properties(cura-formulae-engine PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON)
+endif()
