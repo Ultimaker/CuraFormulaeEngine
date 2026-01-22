@@ -13,11 +13,14 @@ required_conan_version = ">=2.7"
 
 class CuraFormulaeEngineConan(ConanFile):
     name = "cura-formulae-engine"
+    license = "LGPL-3.0"
     author = "UltiMaker"
     url = "https://github.com/Ultimaker/CuraFormulaeEngine"
     homepage = "https://ultimaker.com"
     description = "Formulae parser and evaluator engine used in Ultimaker Cura"
     settings = "os", "compiler", "build_type", "arch"
+    exports = "LICENSE*"
+    package_type = "library"
     options = {
         "enable_extensive_warnings": [True, False],
         "with_apps": [True, False],
