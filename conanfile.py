@@ -14,7 +14,7 @@ required_conan_version = ">=2.7"
 class CuraFormulaeEngineConan(ConanFile):
     name = "cura-formulae-engine"
     author = "UltiMaker"
-    url = "https://github.com/Ultimaker/CuraFormlaeEngine"
+    url = "https://github.com/Ultimaker/CuraFormulaeEngine"
     homepage = "https://ultimaker.com"
     description = "Formulae parser and evaluator engine used in Ultimaker Cura"
     settings = "os", "compiler", "build_type", "arch"
