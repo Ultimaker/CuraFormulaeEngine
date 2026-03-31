@@ -1,12 +1,11 @@
 #pragma once
 
-#include "cura-formulae-engine/eval.h"
-
-#include <zeus/expected.hpp>
-
 #include <functional>
 #include <string>
 #include <unordered_set>
+#include <zeus/expected.hpp>
+
+#include "cura-formulae-engine/eval.h"
 
 namespace CuraFormulaeEngine::eval
 {
@@ -36,10 +35,13 @@ class EnvironmentMap : public Environment
 {
 private:
     std::unordered_map<std::string, eval::Value> environment_ = {};
-public:
 
+public:
     EnvironmentMap() = default;
-    explicit EnvironmentMap(const std::unordered_map<std::string, eval::Value>& map) : environment_(map) {}
+    explicit EnvironmentMap(const std::unordered_map<std::string, eval::Value>& map)
+        : environment_(map)
+    {
+    }
     ~EnvironmentMap() override = default;
 
     [[nodiscard]] std::optional<eval::Value> get(const std::string& key) const noexcept override;
@@ -52,31 +54,58 @@ public:
 
     void set(const std::string& key, const eval::Value& value) noexcept;
 
-    [[nodiscard]] EnvironmentMap clone() const noexcept;
+    void add(const std::unordered_map<std::string, eval::Value> values);
 
+    [[nodiscard]] EnvironmentMap clone() const noexcept;
 };
 
-class LocalEnvironment : public Environment
+class ChainableEnvironment : public Environment
 {
-public:
+private:
+    const Environment* shadow_environment_{ nullptr };
 
-    LocalEnvironment() = default;
-    explicit LocalEnvironment(const Environment* shadow_environment_)
-        : shadow_environment_(shadow_environment_)
+public:
+    explicit ChainableEnvironment(const Environment* shadow_environment = nullptr)
+        : shadow_environment_(shadow_environment)
+    {
+    }
+    ~ChainableEnvironment() override = default;
+
+    [[nodiscard]] std::optional<eval::Value> get(const std::string& key) const noexcept override final;
+
+    [[nodiscard]] bool has(const std::string& key) const noexcept override final;
+
+    [[nodiscard]] std::unordered_map<std::string, eval::Value> getAll() const noexcept override final;
+
+protected:
+    [[nodiscard]] virtual std::optional<eval::Value> getImpl(const std::string& key) const noexcept = 0;
+
+    [[nodiscard]] virtual bool hasImpl(const std::string& key) const noexcept = 0;
+
+    [[nodiscard]] virtual std::unordered_map<std::string, eval::Value> getAllImpl() const noexcept = 0;
+};
+
+class LocalEnvironment : public ChainableEnvironment
+{
+private:
+    EnvironmentMap local_environment_;
+
+public:
+    explicit LocalEnvironment(const Environment* shadow_environment = nullptr)
+        : ChainableEnvironment(shadow_environment)
     {
     }
     ~LocalEnvironment() override = default;
 
-    EnvironmentMap local_environment_ = {};
-    const Environment* shadow_environment_;
+    [[nodiscard]] std::optional<eval::Value> getImpl(const std::string& key) const noexcept override;
 
-    [[nodiscard]] std::optional<eval::Value> get(const std::string& key) const noexcept override;
+    [[nodiscard]] bool hasImpl(const std::string& key) const noexcept override;
 
-    [[nodiscard]] bool has(const std::string& key) const noexcept override;
-
-    [[nodiscard]] std::unordered_map<std::string, eval::Value> getAll() const noexcept override;
+    [[nodiscard]] std::unordered_map<std::string, eval::Value> getAllImpl() const noexcept override;
 
     void set(const std::string& key, const eval::Value& value);
+
+    void add(const std::unordered_map<std::string, eval::Value> values);
 };
 
 } // namespace CuraFormulaeEngine::env
@@ -123,7 +152,8 @@ struct Expr
     [[nodiscard]] virtual bool deepEq(const Expr& other) const = 0;
 
     /**
-     * @brief Traverses the expression tree and applies the visitor function to each node.
+     * @brief Traverses the expression tree and applies the visitor function to
+     * each node.
      *
      * @param visitor The visitor function to apply to each node.
      */

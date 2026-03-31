@@ -5,11 +5,12 @@ namespace CuraFormulaeEngine::env
 
 std::optional<eval::Value> EnvironmentMap::get(const std::string& key) const noexcept
 {
-    if (!has(key))
+    auto iterator = environment_.find(key);
+    if (iterator == environment_.end())
     {
         return std::nullopt;
     }
-    return environment_.at(key);
+    return iterator->second;
 }
 
 bool EnvironmentMap::has(const std::string& key) const noexcept
@@ -32,44 +33,67 @@ void EnvironmentMap::set(const std::string& key, const eval::Value& value) noexc
     environment_.insert_or_assign(key, value);
 }
 
+void EnvironmentMap::add(const std::unordered_map<std::string, eval::Value> values)
+{
+    environment_.insert(values.begin(), values.end());
+}
+
 EnvironmentMap EnvironmentMap::clone() const noexcept
 {
-    return EnvironmentMap{environment_};
+    return EnvironmentMap{ environment_ };
 }
 
-std::optional<eval::Value> LocalEnvironment::get(const std::string& key) const noexcept
+std::optional<eval::Value> LocalEnvironment::getImpl(const std::string& key) const noexcept
 {
-    if (local_environment_.has(key))
-    {
-        return local_environment_.get(key);
-    }
-    if (shadow_environment_ && shadow_environment_->has(key))
-    {
-        return shadow_environment_->get(key);
-    }
-    return std::nullopt;
+    return local_environment_.get(key);
 }
 
-bool LocalEnvironment::has(const std::string& key) const noexcept
+bool LocalEnvironment::hasImpl(const std::string& key) const noexcept
 {
-    return local_environment_.has(key) || (shadow_environment_ && shadow_environment_->has(key));
+    return local_environment_.has(key);
 }
 
-std::unordered_map<std::string, eval::Value> LocalEnvironment::getAll() const noexcept
+std::unordered_map<std::string, eval::Value> LocalEnvironment::getAllImpl() const noexcept
 {
-    std::unordered_map<std::string, eval::Value> all;
-    if (shadow_environment_) {
-        all = shadow_environment_->getAll();
-    }
-
-    auto scoped = local_environment_.getAll();
-    all.insert(scoped.begin(), scoped.end());
-    return all;
+    return local_environment_.getAll();
 }
 
 void LocalEnvironment::set(const std::string& key, const eval::Value& value)
 {
     local_environment_.set(key, value);
+}
+
+void LocalEnvironment::add(const std::unordered_map<std::string, eval::Value> values)
+{
+    local_environment_.add(values);
+}
+
+std::optional<eval::Value> ChainableEnvironment::get(const std::string& key) const noexcept
+{
+    std::optional<eval::Value> value = getImpl(key);
+    if (! value.has_value() && shadow_environment_)
+    {
+        value = shadow_environment_->get(key);
+    }
+    return value;
+}
+
+bool ChainableEnvironment::has(const std::string& key) const noexcept
+{
+    return hasImpl(key) || (shadow_environment_ && shadow_environment_->has(key));
+}
+
+std::unordered_map<std::string, eval::Value> ChainableEnvironment::getAll() const noexcept
+{
+    std::unordered_map<std::string, eval::Value> all;
+    if (shadow_environment_)
+    {
+        all = shadow_environment_->getAll();
+    }
+
+    auto scoped = getAllImpl();
+    all.insert(scoped.begin(), scoped.end());
+    return all;
 }
 
 } // namespace CuraFormulaeEngine::env
