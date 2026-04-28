@@ -33,7 +33,7 @@ void EnvironmentMap::set(const std::string& key, const eval::Value& value) noexc
     environment_.insert_or_assign(key, value);
 }
 
-void EnvironmentMap::add(const std::unordered_map<std::string, eval::Value> values)
+void EnvironmentMap::add(const std::unordered_map<std::string, eval::Value>& values)
 {
     environment_.insert(values.begin(), values.end());
 }
@@ -63,7 +63,7 @@ void LocalEnvironment::set(const std::string& key, const eval::Value& value)
     local_environment_.set(key, value);
 }
 
-void LocalEnvironment::add(const std::unordered_map<std::string, eval::Value> values)
+void LocalEnvironment::add(const std::unordered_map<std::string, eval::Value>& values)
 {
     local_environment_.add(values);
 }

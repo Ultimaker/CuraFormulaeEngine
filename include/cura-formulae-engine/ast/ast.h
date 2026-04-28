@@ -55,7 +55,7 @@ public:
 
     void set(const std::string& key, const eval::Value& value) noexcept;
 
-    void add(const std::unordered_map<std::string, eval::Value> values);
+    void add(const std::unordered_map<std::string, eval::Value>& values);
 
     [[nodiscard]] EnvironmentMap clone() const noexcept;
 };
@@ -106,7 +106,7 @@ public:
 
     void set(const std::string& key, const eval::Value& value);
 
-    void add(const std::unordered_map<std::string, eval::Value> values);
+    void add(const std::unordered_map<std::string, eval::Value>& values);
 };
 
 } // namespace CuraFormulaeEngine::env
