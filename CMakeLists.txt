@@ -1,10 +1,17 @@
 cmake_minimum_required(VERSION 3.26)
 project(cura-formulae-engine)
 
+include(CTest)
+
 find_package(standardprojectsettings REQUIRED)
 option(ENABLE_TESTS "Build with unit test" ON)
 option(EXTENSIVE_WARNINGS "Build with all warnings" ON)
 option(ENABLE_APPS "Build apps example" ON)
+
+if (ENABLE_TESTS AND NOT BUILD_TESTING)
+    message(STATUS "ENABLE_TESTS is ON, forcing BUILD_TESTING=ON so CTest can discover tests")
+    set(BUILD_TESTING ON CACHE BOOL "Enable CTest" FORCE)
+endif ()
 
 find_package(spdlog REQUIRED)
 find_package(lexy REQUIRED)
@@ -59,6 +66,7 @@ set(CURA_FORMULAE_ENGINE__SRC
     src/ast/slice_expr.cpp
     src/ast/tuple_expr.cpp
     src/ast/variable_expr.cpp
+    src/ast/property_access_expr.cpp
     src/parser/parser.cpp
     src/ast/binary_expr/binary_expr.cpp
     src/ast/binary_expr/add_expr.cpp

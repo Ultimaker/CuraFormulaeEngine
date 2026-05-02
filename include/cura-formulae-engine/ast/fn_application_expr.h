@@ -8,12 +8,25 @@ namespace CuraFormulaeEngine::ast
 
 struct FnApplicationExpr final : Expr
 {
+    struct KeywordArg
+    {
+        std::string name;
+        ExprPtr value;
+
+        [[nodiscard]] bool deepEq(const KeywordArg& other) const noexcept
+        {
+            return name == other.name && value.deepEq(other.value);
+        }
+    };
+
     ExprPtr fn;
     std::vector<ExprPtr> args;
+    std::vector<KeywordArg> kwargs;
 
-    FnApplicationExpr(ExprPtr fn, std::vector<ExprPtr> args)
+    FnApplicationExpr(ExprPtr fn, std::vector<ExprPtr> args, std::vector<KeywordArg> kwargs = {})
         : fn(std::move(fn))
         , args(std::move(args))
+        , kwargs(std::move(kwargs))
     {
     }
 

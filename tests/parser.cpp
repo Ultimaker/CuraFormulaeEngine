@@ -1,4 +1,5 @@
 #include "cura-formulae-engine/cura-formulae-engine.h"
+#include "cura-formulae-engine/ast/property_access_expr.h"
 
 #include <catch2/catch_all.hpp>
 #include <catch2/catch_test_macros.hpp>
@@ -804,7 +805,7 @@ TEST_CASE("trailing comma tuple", "[parser, tuple]")
 TEST_CASE("variable math.pi", "[parser, variable]")
 {
     auto input = "math.pi"sv;
-    const auto expected_ast = make_expr_ptr<VariableExpr>("math.pi");
+    const auto expected_ast = make_expr_ptr<PropertyAccessExpr>(make_expr_ptr<VariableExpr>("math"), "pi");
     const auto expected_eval = CuraFormulaeEngine::eval::Value(std::numbers::pi);
 
     const auto message = CuraFormulaeEngine::parser::parse(input);
@@ -819,7 +820,7 @@ TEST_CASE("variable math.pi", "[parser, variable]")
 TEST_CASE("variable math.e", "[parser, variable]")
 {
     auto input = "math.e"sv;
-    const auto expected_ast = make_expr_ptr<VariableExpr>("math.e");
+    const auto expected_ast = make_expr_ptr<PropertyAccessExpr>(make_expr_ptr<VariableExpr>("math"), "e");
     const auto expected_eval = CuraFormulaeEngine::eval::Value(std::numbers::e);
 
     const auto message = CuraFormulaeEngine::parser::parse(input);
@@ -834,7 +835,7 @@ TEST_CASE("variable math.e", "[parser, variable]")
 TEST_CASE("fn cos", "[parser, fn]")
 {
     auto input = "math.cos(math.pi)"sv;
-    const auto expected_ast = make_expr_ptr<VariableExpr>("math.cos")(make_expr_ptr<VariableExpr>("math.pi"));
+    const auto expected_ast = make_expr_ptr<PropertyAccessExpr>(make_expr_ptr<VariableExpr>("math"), "cos")(make_expr_ptr<PropertyAccessExpr>(make_expr_ptr<VariableExpr>("math"), "pi"));
     const auto expected_eval = CuraFormulaeEngine::eval::Value(std::cos(std::numbers::pi));
 
     const auto message = CuraFormulaeEngine::parser::parse(input);
@@ -850,7 +851,7 @@ TEST_CASE("fn cos", "[parser, fn]")
 TEST_CASE("fn sin", "[parser, fn]")
 {
     auto input = "math.sin(math.pi)"sv;
-    const auto expected_ast = make_expr_ptr<VariableExpr>("math.sin")(make_expr_ptr<VariableExpr>("math.pi"));
+    const auto expected_ast = make_expr_ptr<PropertyAccessExpr>(make_expr_ptr<VariableExpr>("math"), "sin")(make_expr_ptr<PropertyAccessExpr>(make_expr_ptr<VariableExpr>("math"), "pi"));
     const auto expected_eval = CuraFormulaeEngine::eval::Value(std::sin(std::numbers::pi));
 
     const auto message = CuraFormulaeEngine::parser::parse(input);
@@ -865,7 +866,7 @@ TEST_CASE("fn sin", "[parser, fn]")
 TEST_CASE("fn tan", "[parser, fn]")
 {
     auto input = "math.tan(math.pi)"sv;
-    const auto expected_ast = make_expr_ptr<VariableExpr>("math.tan")(make_expr_ptr<VariableExpr>("math.pi"));
+    const auto expected_ast = make_expr_ptr<PropertyAccessExpr>(make_expr_ptr<VariableExpr>("math"), "tan")(make_expr_ptr<PropertyAccessExpr>(make_expr_ptr<VariableExpr>("math"), "pi"));
     const auto expected_eval = CuraFormulaeEngine::eval::Value(std::tan(std::numbers::pi));
 
     const auto message = CuraFormulaeEngine::parser::parse(input);
@@ -1371,7 +1372,7 @@ TEST_CASE("fn int str input base", "[parser, fn]")
 TEST_CASE("fn floor", "[parser, fn]")
 {
     auto input = "math.floor(0.1)"sv;
-    const auto expected_ast = make_expr_ptr<VariableExpr>("math.floor")(make_expr_ptr<FloatExpr>(0.1));
+    const auto expected_ast = make_expr_ptr<PropertyAccessExpr>(make_expr_ptr<VariableExpr>("math"), "floor")(make_expr_ptr<FloatExpr>(0.1));
     const auto expected_eval = CuraFormulaeEngine::eval::Value(0.0);
 
     const auto message = CuraFormulaeEngine::parser::parse(input);
@@ -1386,7 +1387,7 @@ TEST_CASE("fn floor", "[parser, fn]")
 TEST_CASE("fn ceil", "[parser, fn]")
 {
     auto input = "math.ceil(0.1)"sv;
-    const auto expected_ast = make_expr_ptr<VariableExpr>("math.ceil")(make_expr_ptr<FloatExpr>(0.1));
+    const auto expected_ast = make_expr_ptr<PropertyAccessExpr>(make_expr_ptr<VariableExpr>("math"), "ceil")(make_expr_ptr<FloatExpr>(0.1));
     const auto expected_eval = CuraFormulaeEngine::eval::Value(1.0);
 
     const auto message = CuraFormulaeEngine::parser::parse(input);
@@ -1401,7 +1402,7 @@ TEST_CASE("fn ceil", "[parser, fn]")
 TEST_CASE("fn math.log(1)", "[parser, fn]")
 {
     auto input = "math.log(1)"sv;
-    const auto expected_ast = make_expr_ptr<VariableExpr>("math.log")(make_expr_ptr<IntExpr>(int64_t(1)));
+    const auto expected_ast = make_expr_ptr<PropertyAccessExpr>(make_expr_ptr<VariableExpr>("math"), "log")(make_expr_ptr<IntExpr>(int64_t(1)));
     const auto expected_eval = CuraFormulaeEngine::eval::Value(0.0);
 
     const auto message = CuraFormulaeEngine::parser::parse(input);
@@ -1416,7 +1417,7 @@ TEST_CASE("fn math.log(1)", "[parser, fn]")
 TEST_CASE("fn math.log(1.0)", "[parser, fn]")
 {
     auto input = "math.log(1.0)"sv;
-    const auto expected_ast = make_expr_ptr<VariableExpr>("math.log")(make_expr_ptr<FloatExpr>(1.0));
+    const auto expected_ast = make_expr_ptr<PropertyAccessExpr>(make_expr_ptr<VariableExpr>("math"), "log")(make_expr_ptr<FloatExpr>(1.0));
     const auto expected_eval = CuraFormulaeEngine::eval::Value(0.0);
 
     const auto message = CuraFormulaeEngine::parser::parse(input);
@@ -1431,7 +1432,7 @@ TEST_CASE("fn math.log(1.0)", "[parser, fn]")
 TEST_CASE("fn math.log(4096, 8)", "[parser, fn]")
 {
     auto input = "math.log(4096, 8)"sv;
-    const auto expected_ast = make_expr_ptr<VariableExpr>("math.log")(make_expr_ptr<IntExpr>(int64_t(4096)),
+    const auto expected_ast = make_expr_ptr<PropertyAccessExpr>(make_expr_ptr<VariableExpr>("math"), "log")(make_expr_ptr<IntExpr>(int64_t(4096)),
                                                                       make_expr_ptr<IntExpr>(int64_t(8)));
     const auto expected_eval = CuraFormulaeEngine::eval::Value(4.0);
 
@@ -1447,7 +1448,7 @@ TEST_CASE("fn math.log(4096, 8)", "[parser, fn]")
 TEST_CASE("fn math.log(True)", "[parser, fn]")
 {
     auto input = "math.log(True)"sv;
-    const auto expected_ast = make_expr_ptr<VariableExpr>("math.log")(make_expr_ptr<BoolExpr>(true));
+    const auto expected_ast = make_expr_ptr<PropertyAccessExpr>(make_expr_ptr<VariableExpr>("math"), "log")(make_expr_ptr<BoolExpr>(true));
     const auto expected_eval = CuraFormulaeEngine::eval::Value(0.0);
 
     const auto message = CuraFormulaeEngine::parser::parse(input);
@@ -2062,6 +2063,56 @@ TEST_CASE("fn round base=5", "[parser, fn]")
     REQUIRE(eval.value().deepEq(expected_eval));
 }
 
+TEST_CASE("fn round keyword args", "[parser, fn, keyword]")
+{
+    auto input = "round(x=1.5, base=1)"sv;
+    const auto expected_eval = CuraFormulaeEngine::eval::Value(1.5);
+
+    const auto message = CuraFormulaeEngine::parser::parse(input);
+    REQUIRE(message.has_value());
+    const auto &ast = message.value();
+    const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
+    REQUIRE(eval.has_value());
+    REQUIRE(eval.value().deepEq(expected_eval));
+}
+
+TEST_CASE("fn int keyword args", "[parser, fn, keyword]")
+{
+    auto input = "int(x='10', base=2)"sv;
+    const auto expected_eval = CuraFormulaeEngine::eval::Value(int64_t(2));
+
+    const auto message = CuraFormulaeEngine::parser::parse(input);
+    REQUIRE(message.has_value());
+    const auto &ast = message.value();
+    const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
+    REQUIRE(eval.has_value());
+    REQUIRE(eval.value().deepEq(expected_eval));
+}
+
+TEST_CASE("fn math.log keyword args", "[parser, fn, keyword]")
+{
+    auto input = "math.log(x=8, base=2)"sv;
+
+    const auto message = CuraFormulaeEngine::parser::parse(input);
+    REQUIRE(message.has_value());
+    const auto &ast = message.value();
+    const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
+    REQUIRE(eval.has_value());
+    REQUIRE(std::abs(std::get<double>(eval.value().value) - 3.0) < 1e-12);
+}
+
+TEST_CASE("fn unknown keyword arg", "[parser, fn, keyword]")
+{
+    auto input = "round(foo=1.5)"sv;
+
+    const auto message = CuraFormulaeEngine::parser::parse(input);
+    REQUIRE(message.has_value());
+    const auto &ast = message.value();
+    const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
+    REQUIRE_FALSE(eval.has_value());
+    REQUIRE(eval.error() == CuraFormulaeEngine::eval::Error::InvalidNumberOfArguments);
+}
+
 TEST_CASE("fn any trailing comma", "[parser, fn]")
 {
     auto input = "any([True], )"sv;
@@ -2254,7 +2305,7 @@ TEST_CASE("s8 bottom_thickness setting parser", "[parser, fdm_printer.def.json e
 
     CuraFormulaeEngine::env::LocalEnvironment custom_env{&CuraFormulaeEngine::env::std_env};
     custom_env.set("layer_height", 0.2006);
-    custom_env.set("top_layers", int64_t(4));
+    custom_env.set("top_layers", static_cast<int64_t>(4));
     custom_env.set("support_enable", false);
     custom_env.set("top_bottom_thickness", 0.8);
 
@@ -2274,6 +2325,235 @@ TEST_CASE("Falcon infill", "[parser, fdm_printer.def.json example]")
 
     CuraFormulaeEngine::env::LocalEnvironment custom_env{&CuraFormulaeEngine::env::std_env};
     custom_env.set("infill_pattern", std::string("grid"));
+
+    const auto eval = ast.evaluate(&custom_env);
+    REQUIRE(eval.has_value());
+    REQUIRE(eval.value().deepEq(expected_eval));
+}
+
+// Property access tests
+TEST_CASE("math.pi property access", "[parser, property_access]")
+{
+    auto input = "math.pi"sv;
+    const auto expected_eval = CuraFormulaeEngine::eval::Value(std::numbers::pi);
+
+    const auto message = CuraFormulaeEngine::parser::parse(input);
+    REQUIRE(message.has_value());
+    const auto &ast = message.value();
+
+    const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
+    REQUIRE(eval.has_value());
+    REQUIRE(eval.value().deepEq(expected_eval));
+}
+
+TEST_CASE("math.e property access", "[parser, property_access]")
+{
+    auto input = "math.e"sv;
+    const auto expected_eval = CuraFormulaeEngine::eval::Value(std::numbers::e);
+
+    const auto message = CuraFormulaeEngine::parser::parse(input);
+    REQUIRE(message.has_value());
+    const auto &ast = message.value();
+
+    const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
+    REQUIRE(eval.has_value());
+    REQUIRE(eval.value().deepEq(expected_eval));
+}
+
+TEST_CASE("math.sqrt function call via property", "[parser, property_access]")
+{
+    auto input = "math.sqrt(4)"sv;
+    const auto expected_eval = CuraFormulaeEngine::eval::Value(2.0);
+
+    const auto message = CuraFormulaeEngine::parser::parse(input);
+    REQUIRE(message.has_value());
+    const auto &ast = message.value();
+
+    const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
+    REQUIRE(eval.has_value());
+    REQUIRE(eval.value().deepEq(expected_eval));
+}
+
+TEST_CASE("math.log function call with keyword args", "[parser, property_access]")
+{
+    auto input = "math.log(x=8, base=2)"sv;
+    const auto expected_eval = CuraFormulaeEngine::eval::Value(3.0);
+
+    const auto message = CuraFormulaeEngine::parser::parse(input);
+    REQUIRE(message.has_value());
+    const auto &ast = message.value();
+
+    const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
+    REQUIRE(eval.has_value());
+    REQUIRE(std::abs(eval.value().numeric().value() - expected_eval.numeric().value()) < 1e-10);
+}
+
+TEST_CASE("math.sin function call", "[parser, property_access]")
+{
+    auto input = "math.sin(0)"sv;
+    const auto expected_eval = CuraFormulaeEngine::eval::Value(0.0);
+
+    const auto message = CuraFormulaeEngine::parser::parse(input);
+    REQUIRE(message.has_value());
+    const auto &ast = message.value();
+
+    const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
+    REQUIRE(eval.has_value());
+    REQUIRE(eval.value().deepEq(expected_eval));
+}
+
+TEST_CASE("math.pi in arithmetic", "[parser, property_access]")
+{
+    auto input = "2 * math.pi"sv;
+    const auto expected_eval = CuraFormulaeEngine::eval::Value(2.0 * std::numbers::pi);
+
+    const auto message = CuraFormulaeEngine::parser::parse(input);
+    REQUIRE(message.has_value());
+    const auto &ast = message.value();
+
+    const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
+    REQUIRE(eval.has_value());
+    REQUIRE(eval.value().deepEq(expected_eval));
+}
+
+TEST_CASE("property access in list", "[parser, property_access]")
+{
+    auto input = "[math.pi, math.e]"sv;
+    const auto expected_eval = CuraFormulaeEngine::eval::Value{std::vector<CuraFormulaeEngine::eval::Value>{
+        CuraFormulaeEngine::eval::Value(std::numbers::pi),
+        CuraFormulaeEngine::eval::Value(std::numbers::e)
+    }};
+
+    const auto message = CuraFormulaeEngine::parser::parse(input);
+    REQUIRE(message.has_value());
+    const auto &ast = message.value();
+
+    const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
+    REQUIRE(eval.has_value());
+    REQUIRE(eval.value().deepEq(expected_eval));
+}
+
+// Method calls on tuples/lists
+TEST_CASE("tuple.index method", "[parser, method_access]")
+{
+    auto input = "('raft', 'brim', 'skirt', 'none').index('raft')"sv;
+    const auto expected_eval = CuraFormulaeEngine::eval::Value(int64_t(0));
+
+    const auto message = CuraFormulaeEngine::parser::parse(input);
+    REQUIRE(message.has_value());
+    const auto &ast = message.value();
+
+    const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
+    REQUIRE(eval.has_value());
+    REQUIRE(eval.value().deepEq(expected_eval));
+}
+
+TEST_CASE("tuple.index method find second element", "[parser, method_access]")
+{
+    auto input = "('raft', 'brim', 'skirt', 'none').index('brim')"sv;
+    const auto expected_eval = CuraFormulaeEngine::eval::Value(int64_t(1));
+
+    const auto message = CuraFormulaeEngine::parser::parse(input);
+    REQUIRE(message.has_value());
+    const auto &ast = message.value();
+
+    const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
+    REQUIRE(eval.has_value());
+    REQUIRE(eval.value().deepEq(expected_eval));
+}
+
+TEST_CASE("list.index method", "[parser, method_access]")
+{
+    auto input = "[1, 2, 3, 4].index(3)"sv;
+    const auto expected_eval = CuraFormulaeEngine::eval::Value(int64_t(2));
+
+    const auto message = CuraFormulaeEngine::parser::parse(input);
+    REQUIRE(message.has_value());
+    const auto &ast = message.value();
+
+    const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
+    REQUIRE(eval.has_value());
+    REQUIRE(eval.value().deepEq(expected_eval));
+}
+
+// extruderValues and min with key tests
+namespace
+{
+namespace extruder_values_test
+{
+const CuraFormulaeEngine::eval::Value::rich_fn_t kExtruderValues{
+    [](const std::vector<CuraFormulaeEngine::eval::Value>& args) -> CuraFormulaeEngine::eval::Result
+    {
+        if (args.size() != 1)
+        {
+            return zeus::unexpected(CuraFormulaeEngine::eval::Error::InvalidNumberOfArguments);
+        }
+        if (! std::holds_alternative<std::string>(args[0].value))
+        {
+            return zeus::unexpected(CuraFormulaeEngine::eval::Error::TypeMismatch);
+        }
+
+        const auto& option = std::get<std::string>(args[0].value);
+        if (option == "adhesion_type")
+        {
+            return CuraFormulaeEngine::eval::Value{std::vector<CuraFormulaeEngine::eval::Value>{
+                CuraFormulaeEngine::eval::Value(std::string("raft")),
+                CuraFormulaeEngine::eval::Value(std::string("brim"))
+            }};
+        }
+
+        return CuraFormulaeEngine::eval::Value{std::vector<CuraFormulaeEngine::eval::Value>{}};
+    },
+    { "option" }
+};
+} // namespace extruder_values_test
+} // namespace
+
+TEST_CASE("extruderValues function", "[env, extruder_values]")
+{
+    auto input = "extruderValues('adhesion_type')"sv;
+    const auto expected_eval = CuraFormulaeEngine::eval::Value{std::vector<CuraFormulaeEngine::eval::Value>{
+        CuraFormulaeEngine::eval::Value(std::string("raft")),
+        CuraFormulaeEngine::eval::Value(std::string("brim"))
+    }};
+
+    const auto message = CuraFormulaeEngine::parser::parse(input);
+    REQUIRE(message.has_value());
+    const auto &ast = message.value();
+
+    CuraFormulaeEngine::env::LocalEnvironment custom_env{&CuraFormulaeEngine::env::std_env};
+    custom_env.set("extruderValues", CuraFormulaeEngine::eval::Value(extruder_values_test::kExtruderValues));
+
+    const auto eval = ast.evaluate(&custom_env);
+    REQUIRE(eval.has_value());
+    REQUIRE(eval.value().deepEq(expected_eval));
+}
+
+TEST_CASE("min with key parameter", "[env, min, key]")
+{
+    auto input = "min(['raft', 'brim'], key=('raft', 'brim', 'skirt', 'none').index)"sv;
+    const auto expected_eval = CuraFormulaeEngine::eval::Value(std::string("raft"));
+
+    const auto message = CuraFormulaeEngine::parser::parse(input);
+    REQUIRE(message.has_value());
+    const auto &ast = message.value();
+
+    const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
+    REQUIRE(eval.has_value());
+    REQUIRE(eval.value().deepEq(expected_eval));
+}
+
+TEST_CASE("min with key - full expression", "[env, min, key]")
+{
+    auto input = "min(extruderValues('adhesion_type'), key=('raft', 'brim', 'skirt', 'none').index)"sv;
+    const auto expected_eval = CuraFormulaeEngine::eval::Value(std::string("raft"));
+
+    const auto message = CuraFormulaeEngine::parser::parse(input);
+    REQUIRE(message.has_value());
+    const auto &ast = message.value();
+
+    CuraFormulaeEngine::env::LocalEnvironment custom_env{&CuraFormulaeEngine::env::std_env};
+    custom_env.set("extruderValues", CuraFormulaeEngine::eval::Value(extruder_values_test::kExtruderValues));
 
     const auto eval = ast.evaluate(&custom_env);
     REQUIRE(eval.has_value());

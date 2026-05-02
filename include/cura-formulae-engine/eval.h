@@ -18,6 +18,7 @@
 #include <cstddef>
 #include <functional>
 #include <string>
+#include <unordered_map>
 #include <variant>
 #include <vector>
 #include <zeus/expected.hpp>
@@ -44,7 +45,31 @@ struct Value
 {
     using fn_t = std::function<Result(const std::vector<Value>&)>;
 
-    std::variant<bool, double, std::int64_t, std::string, std::vector<Value>, fn_t, std::nullptr_t> value = nullptr;
+    struct rich_fn_t
+    {
+        fn_t operation;
+        std::vector<std::string> signature;
+
+        [[nodiscard]] Result operator()(const std::vector<Value>& args) const noexcept
+        {
+            if (! operation)
+            {
+                return zeus::unexpected(Error::TypeMismatch);
+            }
+            return operation(args);
+        }
+
+        [[nodiscard]] std::optional<std::vector<std::string>> getSignature() const noexcept
+        {
+            if (signature.empty())
+            {
+                return std::nullopt;
+            }
+            return signature;
+        }
+    };
+
+    std::variant<bool, double, std::int64_t, std::string, std::vector<Value>, fn_t, rich_fn_t, std::unordered_map<std::string, Value>, std::nullptr_t> value = nullptr;
 
     Value() noexcept = default;
 
@@ -74,6 +99,16 @@ struct Value
     }
 
     Value(const fn_t& value) noexcept
+        : value{ value }
+    {
+    }
+
+    Value(const rich_fn_t& value) noexcept
+        : value{ value }
+    {
+    }
+
+    Value(const std::unordered_map<std::string, Value>& value) noexcept
         : value{ value }
     {
     }

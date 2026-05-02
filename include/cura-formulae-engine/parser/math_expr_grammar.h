@@ -12,12 +12,6 @@
 #include "cura-formulae-engine/ast/expr_ptr.h"
 #include "cura-formulae-engine/ast/unary_expr/neg_expr.h"
 #include "cura-formulae-engine/ast/unary_expr/not_expr.h"
-#include "bool_grammar.h"
-#include "list_grammar.h"
-#include "none_grammar.h"
-#include "number_grammar.h"
-#include "parens_grammar.h"
-#include "string_grammar.h"
 #include "variable_or_fn_application_grammar_or_array_indexing_grammar.h"
 
 #include <lexy/callback/adapter.hpp>
@@ -35,13 +29,7 @@ struct MathExprGrammar : lexy::expression_production
 
     // clang-format off
     static constexpr auto atom
-        = lexy::dsl::p<BoolGrammar>
-        | lexy::dsl::p<NoneGrammar>
-        | lexy::dsl::p<NumberGrammar>
-        | lexy::dsl::p<ParensGrammar>
-        | lexy::dsl::p<StringGrammar>
-        | lexy::dsl::p<ListGrammar>
-        | lexy::dsl::p<VariableOrFnApplicationGrammarOrArrayIndexingGrammar>;
+        = lexy::dsl::p<VariableOrFnApplicationGrammarOrArrayIndexingGrammar>;
     // clang-format on
 
     static constexpr auto op_pow = lexy::dsl::op(LEXY_LIT("**"));

@@ -15,16 +15,25 @@ const eval::Value::fn_t map = [](const std::vector<eval::Value> &args) -> eval::
         return zeus::unexpected(eval::Error::InvalidNumberOfArguments);
     }
 
-    if (! std::holds_alternative<eval::Value::fn_t>(args[0].value))
-    {
-        return zeus::unexpected(eval::Error::TypeMismatch);
-    }
     if (! std::holds_alternative<std::vector<eval::Value>>(args[1].value))
     {
         return zeus::unexpected(eval::Error::TypeMismatch);
     }
 
-    const auto fn = std::get<eval::Value::fn_t>(args[0].value);
+    eval::Value::fn_t fn;
+    if (std::holds_alternative<eval::Value::fn_t>(args[0].value))
+    {
+        fn = std::get<eval::Value::fn_t>(args[0].value);
+    }
+    else if (std::holds_alternative<eval::Value::rich_fn_t>(args[0].value))
+    {
+        fn = std::get<eval::Value::rich_fn_t>(args[0].value).operation;
+    }
+    else
+    {
+        return zeus::unexpected(eval::Error::TypeMismatch);
+    }
+
     const auto list = std::get<std::vector<eval::Value>>(args[1].value);
 
     std::vector<eval::Value> result;

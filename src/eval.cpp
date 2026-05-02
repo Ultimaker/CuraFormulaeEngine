@@ -16,6 +16,7 @@
 #include <cstddef>
 #include <functional>
 #include <string>
+#include <unordered_map>
 #include <variant>
 #include <vector>
 #include <zeus/expected.hpp>
@@ -59,6 +60,14 @@ namespace CuraFormulaeEngine::eval {
         if (std::holds_alternative<fn_t>(value))
         {
             return "<function>";
+        }
+        if (std::holds_alternative<rich_fn_t>(value))
+        {
+            return "<function>";
+        }
+        if (std::holds_alternative<std::unordered_map<std::string, Value>>(value))
+        {
+            return "<object>";
         }
         return "<unknown>";
     }
@@ -105,6 +114,28 @@ namespace CuraFormulaeEngine::eval {
         {
             return typeid(std::holds_alternative<fn_t>(value)) == typeid(std::holds_alternative<fn_t>(other.value));
         }
+        if (std::holds_alternative<rich_fn_t>(value) && std::holds_alternative<rich_fn_t>(other.value))
+        {
+            return true;
+        }
+        if (std::holds_alternative<std::unordered_map<std::string, Value>>(value) && std::holds_alternative<std::unordered_map<std::string, Value>>(other.value))
+        {
+            const auto &lhs = std::get<std::unordered_map<std::string, Value>>(value);
+            const auto &rhs = std::get<std::unordered_map<std::string, Value>>(other.value);
+            if (lhs.size() != rhs.size())
+            {
+                return false;
+            }
+            for (const auto& [key, lhs_val] : lhs)
+            {
+                const auto it = rhs.find(key);
+                if (it == rhs.end() || !lhs_val.deepEq(it->second))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
         return false;
     }
 
@@ -129,6 +160,10 @@ namespace CuraFormulaeEngine::eval {
         if (std::holds_alternative<std::vector<Value>>(value))
         {
             return ! std::get<std::vector<Value>>(value).empty();
+        }
+        if (std::holds_alternative<std::unordered_map<std::string, Value>>(value))
+        {
+            return ! std::get<std::unordered_map<std::string, Value>>(value).empty();
         }
         return false;
     };
@@ -187,6 +222,20 @@ namespace CuraFormulaeEngine::eval {
         if (std::holds_alternative<fn_t>(value))
         {
             throw std::runtime_error("Cannot convert function to emscripten");
+        }
+        if (std::holds_alternative<rich_fn_t>(value))
+        {
+            throw std::runtime_error("Cannot convert function to emscripten");
+        }
+        if (std::holds_alternative<std::unordered_map<std::string, Value>>(value))
+        {
+            emscripten::val obj = emscripten::val::object();
+            const auto& map = std::get<std::unordered_map<std::string, Value>>(value);
+            for (const auto& [key, val] : map)
+            {
+                obj.set(key, val.toEmscripten());
+            }
+            return obj;
         }
 
         throw std::runtime_error("Unknown type in `Value::toEmscripten`");
@@ -274,6 +323,29 @@ bool operator==(const CuraFormulaeEngine::eval::Value& lhs, const CuraFormulaeEn
                     const auto [element_lhs, element_rhs] = pair;
                     return element_lhs == element_rhs;
                 });
+    }
+
+    if (std::holds_alternative<std::unordered_map<std::string, CuraFormulaeEngine::eval::Value>>(lhs.value) && 
+        std::holds_alternative<std::unordered_map<std::string, CuraFormulaeEngine::eval::Value>>(rhs.value))
+    {
+        auto map_lhs = std::get<std::unordered_map<std::string, CuraFormulaeEngine::eval::Value>>(lhs.value);
+        auto map_rhs = std::get<std::unordered_map<std::string, CuraFormulaeEngine::eval::Value>>(rhs.value);
+
+        if (map_lhs.size() != map_rhs.size())
+        {
+            return false;
+        }
+
+        for (const auto& [key, val_lhs] : map_lhs)
+        {
+            const auto it = map_rhs.find(key);
+            if (it == map_rhs.end() || val_lhs != it->second)
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     return false;
