@@ -2559,3 +2559,21 @@ TEST_CASE("min with key - full expression", "[env, min, key]")
     REQUIRE(eval.has_value());
     REQUIRE(eval.value().deepEq(expected_eval));
 }
+
+TEST_CASE("min with custom env variables", "[env, min]")
+{
+    auto input = "min(machine_max_feedrate_x, machine_max_feedrate_y)"sv;
+    const auto expected_eval = CuraFormulaeEngine::eval::Value(int64_t(125));
+
+    const auto message = CuraFormulaeEngine::parser::parse(input);
+    REQUIRE(message.has_value());
+    const auto &ast = message.value();
+
+    CuraFormulaeEngine::env::LocalEnvironment custom_env{&CuraFormulaeEngine::env::std_env};
+    custom_env.set("machine_max_feedrate_x", CuraFormulaeEngine::eval::Value(int64_t(125)));
+    custom_env.set("machine_max_feedrate_y", CuraFormulaeEngine::eval::Value(int64_t(125)));
+
+    const auto eval = ast.evaluate(&custom_env);
+    REQUIRE(eval.has_value());
+    REQUIRE(eval.value().deepEq(expected_eval));
+}

@@ -93,16 +93,22 @@ namespace CuraFormulaeEngine::env
     
     if (args.size() == 2)
     {
+        const bool second_arg_is_callable = std::holds_alternative<eval::Value::fn_t>(args[1].value)
+            || std::holds_alternative<eval::Value::rich_fn_t>(args[1].value);
+
         // key parameter provided
-        if (std::holds_alternative<std::vector<eval::Value>>(args[0].value))
+        if (second_arg_is_callable && std::holds_alternative<std::vector<eval::Value>>(args[0].value))
         {
             return find_min_with_key(std::get<std::vector<eval::Value>>(args[0].value), args[1]);
         }
-        else
+        if (second_arg_is_callable)
         {
             // Single iterable as first arg
             return find_min_with_key(args, args[1]);
         }
+
+        // Two positional args: treat both as values.
+        return find_min(args);
     }
 
     // Multiple arguments: find min among them (no key)
