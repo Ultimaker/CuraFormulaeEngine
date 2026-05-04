@@ -5,6 +5,7 @@
 #include <zeus/expected.hpp>
 
 #include <algorithm>
+#include <sstream>
 #include <string>
 #include <unordered_set>
 
@@ -36,6 +37,53 @@ namespace CuraFormulaeEngine::ast
             return zeus::unexpected(eval::Error::UndefinedVariable);
         }
         return it->second;
+    }
+
+    // Handle built-in methods on strings (e.g., separator.join(iterable))
+    if (std::holds_alternative<std::string>(object_value.value))
+    {
+        if (property == "join")
+        {
+            const auto separator = std::get<std::string>(object_value.value);
+            return eval::Value::fn_t([separator](const std::vector<eval::Value>& args) -> eval::Result
+            {
+                if (args.size() != 1)
+                {
+                    return zeus::unexpected(eval::Error::InvalidNumberOfArguments);
+                }
+
+                const auto* items_ptr = std::get_if<std::vector<eval::Value>>(&args[0].value);
+                if (! items_ptr)
+                {
+                    return zeus::unexpected(eval::Error::TypeMismatch);
+                }
+
+                const auto to_string = [](const eval::Value& v) -> zeus::expected<std::string, eval::Error>
+                {
+                    if (const auto* s = std::get_if<std::string>(&v.value)) return *s;
+                    if (const auto* i = std::get_if<std::int64_t>(&v.value)) return std::to_string(*i);
+                    if (const auto* d = std::get_if<double>(&v.value)) return std::to_string(*d);
+                    if (const auto* b = std::get_if<bool>(&v.value)) return *b ? std::string("True") : std::string("False");
+                    return zeus::unexpected(eval::Error::TypeMismatch);
+                };
+
+                std::string result;
+                bool first = true;
+                for (const auto& item : *items_ptr)
+                {
+                    auto s = to_string(item);
+                    if (! s.has_value())
+                    {
+                        return zeus::unexpected(s.error());
+                    }
+                    if (! first) result += separator;
+                    result += s.value();
+                    first = false;
+                }
+                return eval::Value(result);
+            });
+        }
+        return zeus::unexpected(eval::Error::UndefinedVariable);
     }
 
     // Handle built-in methods on lists/vectors (e.g., list.index)

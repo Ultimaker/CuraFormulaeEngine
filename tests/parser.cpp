@@ -2577,3 +2577,45 @@ TEST_CASE("min with custom env variables", "[env, min]")
     REQUIRE(eval.has_value());
     REQUIRE(eval.value().deepEq(expected_eval));
 }
+
+TEST_CASE("string join integers", "[parser, method_access, join]")
+{
+    auto input = R"(",".join([1, 2, 3]))"sv;
+    const auto expected_eval = CuraFormulaeEngine::eval::Value(std::string("1,2,3"));
+
+    const auto message = CuraFormulaeEngine::parser::parse(input);
+    REQUIRE(message.has_value());
+    const auto &ast = message.value();
+
+    const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
+    REQUIRE(eval.has_value());
+    REQUIRE(eval.value().deepEq(expected_eval));
+}
+
+TEST_CASE("string join strings", "[parser, method_access, join]")
+{
+    auto input = R"(" ".join(["hello", "world"]))"sv;
+    const auto expected_eval = CuraFormulaeEngine::eval::Value(std::string("hello world"));
+
+    const auto message = CuraFormulaeEngine::parser::parse(input);
+    REQUIRE(message.has_value());
+    const auto &ast = message.value();
+
+    const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
+    REQUIRE(eval.has_value());
+    REQUIRE(eval.value().deepEq(expected_eval));
+}
+
+TEST_CASE("string join empty list", "[parser, method_access, join]")
+{
+    auto input = R"(",".join([]))"sv;
+    const auto expected_eval = CuraFormulaeEngine::eval::Value(std::string(""));
+
+    const auto message = CuraFormulaeEngine::parser::parse(input);
+    REQUIRE(message.has_value());
+    const auto &ast = message.value();
+
+    const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
+    REQUIRE(eval.has_value());
+    REQUIRE(eval.value().deepEq(expected_eval));
+}
