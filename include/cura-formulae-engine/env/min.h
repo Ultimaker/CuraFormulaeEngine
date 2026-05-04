@@ -10,8 +10,8 @@ namespace CuraFormulaeEngine::env
 
 struct MinFunction
 {
-	[[nodiscard]] eval::Result operator()(const std::vector<eval::Value>& args) const noexcept;
-	[[nodiscard]] std::vector<std::string> getSignature() const noexcept;
+    [[nodiscard]] eval::Result operator()(const std::vector<eval::Value>& args) const noexcept;
+    [[nodiscard]] std::vector<std::string> getSignature() const noexcept;
 };
 
 extern const MinFunction min_function;
