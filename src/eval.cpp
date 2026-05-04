@@ -328,8 +328,8 @@ bool operator==(const CuraFormulaeEngine::eval::Value& lhs, const CuraFormulaeEn
     if (std::holds_alternative<std::unordered_map<std::string, CuraFormulaeEngine::eval::Value>>(lhs.value) && 
         std::holds_alternative<std::unordered_map<std::string, CuraFormulaeEngine::eval::Value>>(rhs.value))
     {
-        auto map_lhs = std::get<std::unordered_map<std::string, CuraFormulaeEngine::eval::Value>>(lhs.value);
-        auto map_rhs = std::get<std::unordered_map<std::string, CuraFormulaeEngine::eval::Value>>(rhs.value);
+        const auto& map_lhs = std::get<std::unordered_map<std::string, CuraFormulaeEngine::eval::Value>>(lhs.value);
+        const auto& map_rhs = std::get<std::unordered_map<std::string, CuraFormulaeEngine::eval::Value>>(rhs.value);
 
         if (map_lhs.size() != map_rhs.size())
         {
