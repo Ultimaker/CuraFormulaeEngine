@@ -2113,6 +2113,21 @@ TEST_CASE("fn unknown keyword arg", "[parser, fn, keyword]")
     REQUIRE(eval.error() == CuraFormulaeEngine::eval::Error::InvalidNumberOfArguments);
 }
 
+TEST_CASE("fn keyword arg with gap in positional args", "[parser, fn, keyword]")
+{
+    // round(base=1) omits the required first argument 'x'; bindKeywordArguments
+    // should detect the gap and return InvalidNumberOfArguments instead of
+    // invoking RoundFunction with 0 args (which would cause out-of-bounds UB).
+    auto input = "round(base=1)"sv;
+
+    const auto message = CuraFormulaeEngine::parser::parse(input);
+    REQUIRE(message.has_value());
+    const auto &ast = message.value();
+    const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
+    REQUIRE_FALSE(eval.has_value());
+    REQUIRE(eval.error() == CuraFormulaeEngine::eval::Error::InvalidNumberOfArguments);
+}
+
 TEST_CASE("fn any trailing comma", "[parser, fn]")
 {
     auto input = "any([True], )"sv;

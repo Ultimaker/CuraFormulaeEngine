@@ -63,6 +63,18 @@ std::optional<std::vector<eval::Value>> bindKeywordArguments(
         }
         bound.push_back(slot.value());
     }
+
+    // If any slot beyond the bound range has a value there is a gap (a required
+    // earlier argument is missing while a later one was supplied via keyword).
+    // Return nullopt so the caller can report InvalidNumberOfArguments.
+    for (size_t i = bound.size(); i < slots.size(); ++i)
+    {
+        if (slots[i].has_value())
+        {
+            return std::nullopt;
+        }
+    }
+
     return bound;
 }
 
