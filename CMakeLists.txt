@@ -86,6 +86,7 @@ target_link_libraries(cura-formulae-engine
 target_compile_definitions(cura-formulae-engine
         INTERFACE
         CURA_FORMULA_VERSION_VERSION="${CURA_FORMULA_VERSION_VERSION}"
+        CURA_FORMULAE_ENGINE_EXPORT=1
 )
 
 target_include_directories(
