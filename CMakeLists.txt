@@ -69,7 +69,7 @@ set(CURA_FORMULAE_ENGINE__SRC
     src/ast/binary_expr/or_expr.cpp
     src/ast/binary_expr/pow_expr.cpp
     src/ast/binary_expr/and_expr.cpp
-        src/ast/primary_expr/string_expr.cpp
+    src/ast/primary_expr/string_expr.cpp
 )
 
 add_library(cura-formulae-engine SHARED ${CURA_FORMULAE_ENGINE__SRC})
@@ -86,7 +86,7 @@ target_link_libraries(cura-formulae-engine
 target_compile_definitions(cura-formulae-engine
         INTERFACE
         CURA_FORMULA_VERSION_VERSION="${CURA_FORMULA_VERSION_VERSION}"
-        CURA_FORMULAE_ENGINE_EXPORT=1
+        CURA_FORMULAE_ENGINE_EXPORT
 )
 
 target_include_directories(
