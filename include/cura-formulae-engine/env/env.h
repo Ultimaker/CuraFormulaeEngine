@@ -1,6 +1,7 @@
 #pragma once
 
 #include "cura-formulae-engine/ast/ast.h"
+#include "cura-formulae-engine/config.h"
 
 namespace CuraFormulaeEngine::env
 {
@@ -8,6 +9,6 @@ namespace CuraFormulaeEngine::env
 /**
  * @brief The standard environment.
  */
-extern const EnvironmentMap std_env;
+CURA_FORMULAE_ENGINE_API extern const EnvironmentMap std_env;
 
 } // namespace CuraFormulaeEngine::env

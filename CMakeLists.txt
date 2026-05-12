@@ -69,7 +69,7 @@ set(CURA_FORMULAE_ENGINE__SRC
     src/ast/binary_expr/or_expr.cpp
     src/ast/binary_expr/pow_expr.cpp
     src/ast/binary_expr/and_expr.cpp
-        src/ast/primary_expr/string_expr.cpp
+    src/ast/primary_expr/string_expr.cpp
 )
 
 add_library(cura-formulae-engine SHARED ${CURA_FORMULAE_ENGINE__SRC})
