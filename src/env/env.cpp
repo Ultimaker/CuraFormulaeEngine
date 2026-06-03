@@ -35,7 +35,7 @@ namespace CuraFormulaeEngine::env
 /**
  * @brief The standard environment.
  */
-const EnvironmentMap std_env = []()
+CURA_FORMULAE_ENGINE_API const EnvironmentMap std_env = []()
 {
     EnvironmentMap env;
 
