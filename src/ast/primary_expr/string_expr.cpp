@@ -4,12 +4,10 @@
 
 #include <string>
 
-namespace CuraFormulaeEngine::ast
-{
+namespace CuraFormulaeEngine::ast {
 
-std::string StringExpr::toString() const noexcept
-{
-    return fmt::format("\"{}\"", value);
+std::string StringExpr::toString() const noexcept {
+  return fmt::format("\"{}\"", value);
 }
 
 } // namespace CuraFormulaeEngine::ast

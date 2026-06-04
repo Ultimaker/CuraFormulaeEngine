@@ -2,12 +2,10 @@
 
 #include "primary_expr.h"
 
-namespace CuraFormulaeEngine::ast
-{
+namespace CuraFormulaeEngine::ast {
 
-struct FloatExpr final : PrimaryExpr<double>
-{
-    using PrimaryExpr::PrimaryExpr;
+struct FloatExpr final : PrimaryExpr<double> {
+  using PrimaryExpr::PrimaryExpr;
 };
 
 } // namespace CuraFormulaeEngine::ast

@@ -6,27 +6,23 @@
 
 #include <zeus/expected.hpp>
 
-namespace CuraFormulaeEngine::ast
-{
+namespace CuraFormulaeEngine::ast {
 
-struct VariableExpr final : Expr
-{
-    std::string name;
+struct VariableExpr final : Expr {
+  std::string name;
 
-    VariableExpr(std::string name)
-        : name(std::move(name))
-    {
-    }
+  VariableExpr(std::string name) : name(std::move(name)) {}
 
-    std::string toString() const noexcept final;
+  std::string toString() const noexcept final;
 
-    eval::Result evaluate(const env::Environment* environment) const noexcept final;
+  eval::Result
+  evaluate(const env::Environment *environment) const noexcept final;
 
-    std::unordered_set<std::string> freeVariables() const noexcept final;
+  std::unordered_set<std::string> freeVariables() const noexcept final;
 
-    bool deepEq(const Expr& other) const noexcept final;
+  bool deepEq(const Expr &other) const noexcept final;
 
-    void visitAll(std::function<void(const Expr&)> visitor) const noexcept final;
+  void visitAll(std::function<void(const Expr &)> visitor) const noexcept final;
 };
 
 } // namespace CuraFormulaeEngine::ast
