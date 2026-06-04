@@ -7,18 +7,19 @@
 #include <string>
 #include <variant>
 
-namespace CuraFormulaeEngine::ast
-{
+namespace CuraFormulaeEngine::ast {
 
-struct OrExpr final : BinaryExpr
-{
-    using BinaryExpr::BinaryExpr;
+struct OrExpr final : BinaryExpr {
+  using BinaryExpr::BinaryExpr;
 
-    [[nodiscard]] std::string getOpIdentifier() const noexcept final;
+  [[nodiscard]] std::string getOpIdentifier() const noexcept final;
 
-    eval::Result evaluate(eval::Value& lhs, eval::Value& rhs) const noexcept final;
+  eval::Result evaluate(eval::Value &lhs,
+                        eval::Value &rhs) const noexcept final;
 };
 
 } // namespace CuraFormulaeEngine::ast
 
-CuraFormulaeEngine::ast::ExprPtr operator||(CuraFormulaeEngine::ast::ExprPtr lhs, CuraFormulaeEngine::ast::ExprPtr rhs);
+CuraFormulaeEngine::ast::ExprPtr
+operator||(CuraFormulaeEngine::ast::ExprPtr lhs,
+           CuraFormulaeEngine::ast::ExprPtr rhs);

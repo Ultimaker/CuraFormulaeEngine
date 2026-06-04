@@ -4,12 +4,10 @@
 
 #include <cstdint>
 
-namespace CuraFormulaeEngine::ast
-{
+namespace CuraFormulaeEngine::ast {
 
-struct IntExpr final : PrimaryExpr<std::int64_t>
-{
-    using PrimaryExpr::PrimaryExpr;
+struct IntExpr final : PrimaryExpr<std::int64_t> {
+  using PrimaryExpr::PrimaryExpr;
 };
 
 } // namespace CuraFormulaeEngine::ast

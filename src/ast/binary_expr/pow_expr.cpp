@@ -3,17 +3,15 @@
 
 #include <string>
 
-namespace CuraFormulaeEngine::ast
-{
+namespace CuraFormulaeEngine::ast {
 
-[[nodiscard]] std::string PowExpr::getOpIdentifier() const noexcept
-{
-    return "**";
+[[nodiscard]] std::string PowExpr::getOpIdentifier() const noexcept {
+  return "**";
 }
 
-eval::Result PowExpr::evaluate(eval::Value& lhs, eval::Value& rhs) const noexcept
-{
-    return eval::pow(lhs, rhs);
+eval::Result PowExpr::evaluate(eval::Value &lhs,
+                               eval::Value &rhs) const noexcept {
+  return eval::pow(lhs, rhs);
 }
 
 } // namespace CuraFormulaeEngine::ast
