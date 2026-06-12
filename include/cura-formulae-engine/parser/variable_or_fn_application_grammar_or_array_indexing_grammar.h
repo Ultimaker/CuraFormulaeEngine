@@ -122,7 +122,7 @@ struct ApplyPropertyAccessExpr final : ApplyExpr
 
     ast::ExprPtr apply(ast::ExprPtr&& object) override
     {
-        return { std::make_unique<ast::PropertyAccessExpr>(std::move(object), property_name) };
+        return { std::make_unique<ast::PropertyAccessExpr>(std::move(object), std::move(property_name)) };
     }
 };
 
