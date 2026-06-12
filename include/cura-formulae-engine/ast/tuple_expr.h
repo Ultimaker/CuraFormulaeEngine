@@ -15,7 +15,7 @@ struct TupleExpr final : Expr
 {
     std::vector<ExprPtr> elements;
 
-    TupleExpr(std::vector<ExprPtr> elements)
+    TupleExpr(std::vector<ExprPtr>&& elements)
         : elements(std::move(elements))
     {
     }

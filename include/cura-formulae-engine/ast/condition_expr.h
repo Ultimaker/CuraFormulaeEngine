@@ -12,7 +12,7 @@ struct ConditionExpr final : Expr
     ExprPtr condition;
     ExprPtr else_expr;
 
-    ConditionExpr(ExprPtr then_expr, ExprPtr condition, ExprPtr else_expr)
+    ConditionExpr(ExprPtr&& then_expr, ExprPtr&& condition, ExprPtr&& else_expr)
         : then_expr(std::move(then_expr))
         , condition(std::move(condition))
         , else_expr(std::move(else_expr))

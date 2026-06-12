@@ -13,7 +13,7 @@ struct PropertyAccessExpr final : Expr
     ExprPtr object;
     std::string property;
 
-    PropertyAccessExpr(ExprPtr object, std::string property)
+    PropertyAccessExpr(ExprPtr&& object, std::string&& property)
         : object(std::move(object))
         , property(std::move(property))
     {

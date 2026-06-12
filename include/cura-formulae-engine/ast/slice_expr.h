@@ -23,7 +23,7 @@ struct SliceExpr final : Expr
     std::optional<ExprPtr> end_index;
     std::optional<ExprPtr> step_size;
 
-    SliceExpr(ExprPtr array, std::optional<ExprPtr> start_index, std::optional<ExprPtr> end_index, std::optional<ExprPtr> step_size)
+    SliceExpr(ExprPtr&& array, std::optional<ExprPtr>&& start_index, std::optional<ExprPtr>&& end_index, std::optional<ExprPtr>&& step_size)
         : array(std::move(array))
         , start_index(std::move(start_index))
         , end_index(std::move(end_index))
