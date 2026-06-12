@@ -10,7 +10,7 @@
 namespace CuraFormulaeEngine::env
 {
 
-const eval::Value::fn_t math_log = [](const std::vector<eval::Value> &args) -> eval::Result
+[[nodiscard]] eval::Result MathLogFunction::operator()(const std::vector<eval::Value> &args) const noexcept
 {
     if (args.empty() || args.size() > 2)
     {
@@ -58,6 +58,17 @@ const eval::Value::fn_t math_log = [](const std::vector<eval::Value> &args) -> e
     }
 
     return eval::Value(std::log(x) / std::log(base));
+}
+
+[[nodiscard]] std::vector<std::string> MathLogFunction::getSignature() const noexcept
+{
+    return { "x", "base" };
+}
+
+const MathLogFunction math_log_function{};
+const eval::Value::fn_t math_log = [](const std::vector<eval::Value>& args) -> eval::Result
+{
+    return math_log_function(args);
 };
 
 } // namespace CuraFormulaeEngine::env

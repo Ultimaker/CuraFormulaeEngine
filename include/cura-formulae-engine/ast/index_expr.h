@@ -19,7 +19,7 @@ struct IndexExpr final : Expr
     ExprPtr array;
     ExprPtr index;
 
-    IndexExpr(ExprPtr array, ExprPtr index)
+    IndexExpr(ExprPtr&& array, ExprPtr&& index)
         : array(std::move(array))
         , index(std::move(index))
     {

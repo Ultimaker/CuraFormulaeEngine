@@ -3,19 +3,19 @@
 #include "cura-formulae-engine/ast/ast.h"
 #include "expr_ptr.h"
 
+#include <string>
+
 namespace CuraFormulaeEngine::ast
 {
 
-struct ConditionExpr final : Expr
+struct PropertyAccessExpr final : Expr
 {
-    ExprPtr then_expr;
-    ExprPtr condition;
-    ExprPtr else_expr;
+    ExprPtr object;
+    std::string property;
 
-    ConditionExpr(ExprPtr&& then_expr, ExprPtr&& condition, ExprPtr&& else_expr)
-        : then_expr(std::move(then_expr))
-        , condition(std::move(condition))
-        , else_expr(std::move(else_expr))
+    PropertyAccessExpr(ExprPtr&& object, std::string&& property)
+        : object(std::move(object))
+        , property(std::move(property))
     {
     }
 

@@ -33,7 +33,7 @@ parsing parts. For instance, function application and array indexing. The gramma
 similar.
 
 ```
-FN APPLICATION : { variable } '(' { expression } ')'
+FN APPLICATION : { variable } '(' { expression | identifier '=' expression } ')'
 ARRAY INDEXING : { variable } '[' { expression } ']'
 ```
 

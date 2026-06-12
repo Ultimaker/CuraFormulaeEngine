@@ -12,7 +12,7 @@ struct BinaryExpr : Expr
     ExprPtr lhs;
     ExprPtr rhs;
 
-    BinaryExpr(ExprPtr lhs, ExprPtr rhs)
+    BinaryExpr(ExprPtr&& lhs, ExprPtr&& rhs)
         : lhs(std::move(lhs))
         , rhs(std::move(rhs))
     {

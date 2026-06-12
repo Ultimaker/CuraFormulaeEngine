@@ -13,7 +13,7 @@ struct VariableExpr final : Expr
 {
     std::string name;
 
-    VariableExpr(std::string name)
+    VariableExpr(std::string&& name)
         : name(std::move(name))
     {
     }

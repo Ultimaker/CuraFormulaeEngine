@@ -43,29 +43,34 @@ CURA_FORMULAE_ENGINE_API const EnvironmentMap std_env = []()
     env.set("all", eval::Value(all));
     env.set("any", eval::Value(any));
     env.set("float", eval::Value(float_fn));
-    env.set("int", eval::Value(int_fn));
+    env.set("int", eval::Value(eval::Value::rich_fn_t{ int_fn, int_function.getSignature() }));
     env.set("len", eval::Value(len));
     env.set("map", eval::Value(map));
-    env.set("math.atan", eval::Value(math_atan));
-    env.set("math.ceil", eval::Value(math_ceil));
-    env.set("math.cos", eval::Value(math_cos));
-    env.set("math.degrees", eval::Value(math_degrees));
-    env.set("math.e", eval::Value(std::numbers::e));
-    env.set("math.floor", eval::Value(math_floor));
-    env.set("math.inf", eval::Value(std::numeric_limits<double>::infinity()));
-    env.set("math.log", eval::Value(math_log));
-    env.set("math.nan", eval::Value(std::nan("1")));
-    env.set("math.pi", eval::Value(std::numbers::pi));
-    env.set("math.sin", eval::Value(math_sin));
-    env.set("math.tan", eval::Value(math_tan));
-    env.set("math.tau", eval::Value(std::numbers::pi * 2.0));
-    env.set("math.radians", eval::Value(math_radians));
-    env.set("math.sqrt", eval::Value(math_sqrt));
     env.set("max", eval::Value(max));
-    env.set("min", eval::Value(min));
-    env.set("round", eval::Value(round));
+    env.set("min", eval::Value(eval::Value::rich_fn_t{ min, min_function.getSignature() }));
+    env.set("round", eval::Value(eval::Value::rich_fn_t{ round, round_function.getSignature() }));
     env.set("sum", eval::Value(sum));
     env.set("str", eval::Value(str));
+
+    // Create math object with properties
+    std::unordered_map<std::string, eval::Value> math_props;
+    math_props["atan"] = eval::Value(math_atan);
+    math_props["ceil"] = eval::Value(math_ceil);
+    math_props["cos"] = eval::Value(math_cos);
+    math_props["degrees"] = eval::Value(math_degrees);
+    math_props["e"] = eval::Value(std::numbers::e);
+    math_props["floor"] = eval::Value(math_floor);
+    math_props["inf"] = eval::Value(std::numeric_limits<double>::infinity());
+    math_props["log"] = eval::Value(eval::Value::rich_fn_t{ math_log, math_log_function.getSignature() });
+    math_props["nan"] = eval::Value(std::nan("1"));
+    math_props["pi"] = eval::Value(std::numbers::pi);
+    math_props["sin"] = eval::Value(math_sin);
+    math_props["tan"] = eval::Value(math_tan);
+    math_props["tau"] = eval::Value(std::numbers::pi * 2.0);
+    math_props["radians"] = eval::Value(math_radians);
+    math_props["sqrt"] = eval::Value(math_sqrt);
+    
+    env.set("math", eval::Value(math_props));
 
     return env;
 }();

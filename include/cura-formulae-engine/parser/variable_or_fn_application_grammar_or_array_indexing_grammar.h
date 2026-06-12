@@ -3,8 +3,15 @@
 #include "cura-formulae-engine/ast/expr_ptr.h"
 #include "cura-formulae-engine/ast/fn_application_expr.h"
 #include "cura-formulae-engine/ast/index_expr.h"
+#include "cura-formulae-engine/ast/property_access_expr.h"
 #include "cura-formulae-engine/ast/slice_expr.h"
+#include "bool_grammar.h"
+#include "list_grammar.h"
 #include "nested_grammar.h"
+#include "none_grammar.h"
+#include "number_grammar.h"
+#include "parens_grammar.h"
+#include "string_grammar.h"
 #include "variable_grammar.h"
 
 #include <spdlog/spdlog.h>
@@ -14,6 +21,8 @@
 #include <lexy/dsl/literal.hpp>
 #include <memory>
 #include <optional>
+#include <string>
+#include <variant>
 
 namespace CuraFormulaeEngine::parser
 {
@@ -67,6 +76,8 @@ struct ApplySliceExpr final : ApplyExpr
 
 struct ApplyFnApplicationExpr final : ApplyExpr
 {
+    using FnArgElement = std::variant<ast::ExprPtr, ast::FnApplicationExpr::KeywordArg>;
+
     ApplyFnApplicationExpr() = default;
 
     ApplyFnApplicationExpr(std::vector<ast::ExprPtr>&& args)
@@ -74,9 +85,45 @@ struct ApplyFnApplicationExpr final : ApplyExpr
     {
     }
 
-    std::vector<ast::ExprPtr> args;
+    ApplyFnApplicationExpr(std::vector<FnArgElement>&& arg_elements)
+    {
+        for (auto& arg : arg_elements)
+        {
+            if (std::holds_alternative<ast::ExprPtr>(arg))
+            {
+                args.push_back(std::move(std::get<ast::ExprPtr>(arg)));
+            }
+            else
+            {
+                kwargs.push_back(std::move(std::get<ast::FnApplicationExpr::KeywordArg>(arg)));
+            }
+        }
+    }
 
-    ast::ExprPtr apply(ast::ExprPtr&& variable) override { return { std::make_unique<ast::FnApplicationExpr>(std::move(variable), std::move(args)) }; }
+    std::vector<ast::ExprPtr> args;
+    std::vector<ast::FnApplicationExpr::KeywordArg> kwargs;
+
+    ast::ExprPtr apply(ast::ExprPtr&& variable) override
+    {
+        return { std::make_unique<ast::FnApplicationExpr>(std::move(variable), std::move(args), std::move(kwargs)) };
+    }
+};
+
+struct ApplyPropertyAccessExpr final : ApplyExpr
+{
+    ApplyPropertyAccessExpr() = default;
+
+    explicit ApplyPropertyAccessExpr(std::string property_name)
+        : property_name(std::move(property_name))
+    {
+    }
+
+    std::string property_name;
+
+    ast::ExprPtr apply(ast::ExprPtr&& object) override
+    {
+        return { std::make_unique<ast::PropertyAccessExpr>(std::move(object), std::move(property_name)) };
+    }
 };
 
 struct VariableOrFnApplicationGrammarOrArrayIndexingGrammar : lexy::token_production
@@ -95,14 +142,39 @@ struct VariableOrFnApplicationGrammarOrArrayIndexingGrammar : lexy::token_produc
 
     struct FnApplicationGrammar : token_production
     {
+        struct FnKeywordArgGrammar : token_production
+        {
+            static constexpr auto rule
+                = lexy::dsl::peek(lexy::dsl::identifier(lexy::dsl::ascii::alpha_digit_underscore) >> lexy::dsl::lit_c<'='> >> lexy::dsl::peek_not(lexy::dsl::lit_c<'='>))
+               >> lexy::dsl::identifier(lexy::dsl::ascii::alpha_digit_underscore) + lexy::dsl::lit_c<'='> + lexy::dsl::p<NestedGrammar>;
+
+            static constexpr auto value = lexy::callback<ast::FnApplicationExpr::KeywordArg>(
+                [](const auto& identifier, ast::ExprPtr value)
+                {
+                    ast::FnApplicationExpr::KeywordArg kwarg;
+                    kwarg.name = std::string(identifier.begin(), identifier.end());
+                    kwarg.value = std::move(value);
+                    return kwarg;
+                });
+        };
+
+        struct FnArgElementGrammar : token_production
+        {
+            static constexpr auto rule = lexy::dsl::p<FnKeywordArgGrammar> | (lexy::dsl::else_ >> lexy::dsl::p<NestedGrammar>);
+            static constexpr auto value = lexy::callback<ApplyFnApplicationExpr::FnArgElement>(
+                [](ast::FnApplicationExpr::KeywordArg kwarg) -> ApplyFnApplicationExpr::FnArgElement { return kwarg; },
+                [](ast::ExprPtr arg) -> ApplyFnApplicationExpr::FnArgElement { return arg; });
+        };
+
         struct FnApplicationGrammarInner : token_production
         {
             static constexpr auto whitespace = lexy::dsl::whitespace(lexy::dsl::ascii::space);
-            static constexpr auto rule = lexy::dsl::round_bracketed.opt_list(lexy::dsl::p<NestedGrammar>, lexy::dsl::ignore_trailing_sep(lexy::dsl::comma));
+            static constexpr auto rule = lexy::dsl::round_bracketed.opt_list(lexy::dsl::p<FnArgElementGrammar>, lexy::dsl::ignore_trailing_sep(lexy::dsl::comma));
             static constexpr auto value
-                = lexy::as_list<std::vector<ast::ExprPtr>> >> lexy::callback<std::unique_ptr<ApplyExpr>>(
+                = lexy::as_list<std::vector<ApplyFnApplicationExpr::FnArgElement>> >> lexy::callback<std::unique_ptr<ApplyExpr>>(
                       [](lexy::nullopt = {}) -> std::unique_ptr<ApplyExpr> { return std::make_unique<ApplyFnApplicationExpr>(); },
-                      [](std::vector<ast::ExprPtr> args) -> std::unique_ptr<ApplyExpr> { return std::make_unique<ApplyFnApplicationExpr>(std::move(args)); });
+                      [](std::vector<ApplyFnApplicationExpr::FnArgElement> args) -> std::unique_ptr<ApplyExpr>
+                      { return std::make_unique<ApplyFnApplicationExpr>(std::move(args)); });
         };
 
         static constexpr auto rule = lexy::dsl::peek(lexy::dsl::lit_c<'('>) >> lexy::dsl::p<FnApplicationGrammarInner>;
@@ -122,13 +194,36 @@ struct VariableOrFnApplicationGrammarOrArrayIndexingGrammar : lexy::token_produc
             { return std::make_unique<ApplySliceExpr>(std::move(start_index), std::move(end_index), std::move(step)); });
     };
 
+    struct PropertyAccessGrammar : token_production
+    {
+        static constexpr auto rule = lexy::dsl::peek(lexy::dsl::lit_c<'.'>)
+                                   >> lexy::dsl::lit_c<'.'> + lexy::dsl::identifier(lexy::dsl::ascii::alpha_digit_underscore);
+        static constexpr auto value = lexy::callback<std::unique_ptr<ApplyExpr>>(
+            [](const auto& property_name)
+            {
+                return std::make_unique<ApplyPropertyAccessExpr>(std::string(property_name.begin(), property_name.end()));
+            });
+    };
+
     struct List : token_production
     {
-        static constexpr auto rule = lexy::dsl::list(lexy::dsl::p<FnApplicationGrammar> | lexy::dsl::p<IndexOrSliceGrammar>);
+        static constexpr auto rule = lexy::dsl::list(lexy::dsl::p<FnApplicationGrammar> | lexy::dsl::p<PropertyAccessGrammar> | lexy::dsl::p<IndexOrSliceGrammar>);
         static constexpr auto value = lexy::as_list<std::vector<std::unique_ptr<ApplyExpr>>>;
     };
 
-    static constexpr auto rule = lexy::dsl::p<VariableGrammar> >> lexy::dsl::if_(lexy::dsl::peek(lexy::dsl::lit_c<'['> | lexy::dsl::lit_c<'('>) >> lexy::dsl::p<List>);
+    struct PrimaryExpr : token_production
+    {
+        static constexpr auto rule = lexy::dsl::p<BoolGrammar>
+                                   | lexy::dsl::p<NoneGrammar>
+                                   | lexy::dsl::p<NumberGrammar>
+                                   | lexy::dsl::p<ParensGrammar>
+                                   | lexy::dsl::p<StringGrammar>
+                                   | lexy::dsl::p<ListGrammar>;
+        static constexpr auto value = lexy::forward<ast::ExprPtr>;
+    };
+
+    static constexpr auto rule = (lexy::dsl::p<PrimaryExpr> >> lexy::dsl::if_(lexy::dsl::peek(lexy::dsl::lit_c<'['> | lexy::dsl::lit_c<'('> | lexy::dsl::lit_c<'.'>) >> lexy::dsl::p<List>))
+                              | (lexy::dsl::p<VariableGrammar> >> lexy::dsl::if_(lexy::dsl::peek(lexy::dsl::lit_c<'['> | lexy::dsl::lit_c<'('> | lexy::dsl::lit_c<'.'>) >> lexy::dsl::p<List>));
     static constexpr auto value = lexy::callback<ast::ExprPtr>(
         [](auto&& expr) { return std::forward<decltype(expr)>(expr); },
         [](auto&& expr, lexy::nullopt) { return std::forward<decltype(expr)>(expr); },

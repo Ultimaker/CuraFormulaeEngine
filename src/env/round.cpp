@@ -10,7 +10,7 @@
 namespace CuraFormulaeEngine::env
 {
 
-const eval::Value::fn_t round = [](const std::vector<eval::Value> &args) -> eval::Result
+[[nodiscard]] eval::Result RoundFunction::operator()(const std::vector<eval::Value> &args) const noexcept
 {
     if (args.size() > 2)
     {
@@ -54,6 +54,17 @@ const eval::Value::fn_t round = [](const std::vector<eval::Value> &args) -> eval
         return static_cast<std::int64_t>(value);
     }
     return value;
+}
+
+[[nodiscard]] std::vector<std::string> RoundFunction::getSignature() const noexcept
+{
+    return { "x", "base" };
+}
+
+const RoundFunction round_function{};
+const eval::Value::fn_t round = [](const std::vector<eval::Value>& args) -> eval::Result
+{
+    return round_function(args);
 };
 
 } // namespace CuraFormulaeEngine::env

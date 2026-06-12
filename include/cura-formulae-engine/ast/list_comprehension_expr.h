@@ -21,7 +21,7 @@ struct ListComprehensionExpr final : Expr
         ExprPtr iterable;
         std::vector<ExprPtr> conditions;
 
-        loop(ExprPtr iterator_key, ExprPtr iterable, std::vector<ExprPtr> conditions)
+        loop(ExprPtr&& iterator_key, ExprPtr&& iterable, std::vector<ExprPtr>&& conditions)
             : iterator_key(std::move(iterator_key))
             , iterable(std::move(iterable))
             , conditions(std::move(conditions))
@@ -32,7 +32,7 @@ struct ListComprehensionExpr final : Expr
     ExprPtr iterator;
     std::vector<loop> loops;
 
-    ListComprehensionExpr(ExprPtr iterator, std::vector<loop> loops)
+    ListComprehensionExpr(ExprPtr&& iterator, std::vector<loop>&& loops)
         : iterator(std::move(iterator))
         , loops(std::move(loops))
     {

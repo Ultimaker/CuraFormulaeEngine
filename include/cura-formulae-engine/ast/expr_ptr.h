@@ -16,7 +16,7 @@ struct ExprPtr final : Expr
 
     std::unique_ptr<Expr> ptr;
 
-    ExprPtr(std::unique_ptr<Expr> ptr)
+    ExprPtr(std::unique_ptr<Expr>&& ptr)
         : ptr(std::move(ptr))
     {
     }

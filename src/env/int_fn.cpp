@@ -10,7 +10,7 @@
 namespace CuraFormulaeEngine::env
 {
 
-const eval::Value::fn_t int_fn = [](const std::vector<eval::Value> &args) -> eval::Result
+[[nodiscard]] eval::Result IntFunction::operator()(const std::vector<eval::Value> &args) const noexcept
 {
     if (args.size() == 2)
     {
@@ -50,6 +50,17 @@ const eval::Value::fn_t int_fn = [](const std::vector<eval::Value> &args) -> eva
         return static_cast<std::int64_t>(std::stod(std::get<std::string>(x.value)));
     }
     return zeus::unexpected(eval::Error::TypeMismatch);
+}
+
+[[nodiscard]] std::vector<std::string> IntFunction::getSignature() const noexcept
+{
+    return { "x", "base" };
+}
+
+const IntFunction int_function{};
+const eval::Value::fn_t int_fn = [](const std::vector<eval::Value>& args) -> eval::Result
+{
+    return int_function(args);
 };
 
 } // namespace CuraFormulaeEngine::env

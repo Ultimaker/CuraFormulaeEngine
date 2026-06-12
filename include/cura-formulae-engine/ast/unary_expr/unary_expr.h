@@ -19,7 +19,7 @@ struct UnaryExpr : Expr
 {
     ExprPtr operand;
 
-    explicit UnaryExpr(ExprPtr operand)
+    explicit UnaryExpr(ExprPtr&& operand)
         : operand(std::move(operand))
     {
     }
