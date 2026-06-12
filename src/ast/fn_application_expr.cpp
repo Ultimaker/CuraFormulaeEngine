@@ -21,7 +21,7 @@ namespace CuraFormulaeEngine::ast
 {
 namespace
 {
-std::optional<std::vector<eval::Value>> bindKeywordArguments(
+zeus::expected<std::vector<eval::Value>, eval::Error> bindKeywordArguments(
     const std::vector<std::string>& parameter_names,
     const std::vector<eval::Value>& positional_args,
     const std::vector<std::pair<std::string, eval::Value>>& keyword_args
@@ -29,7 +29,7 @@ std::optional<std::vector<eval::Value>> bindKeywordArguments(
 {
     if (positional_args.size() > parameter_names.size())
     {
-        return std::nullopt;
+        return zeus::unexpected(eval::Error::InvalidNumberOfArguments);
     }
 
     std::vector<std::optional<eval::Value>> slots(parameter_names.size());
@@ -43,13 +43,13 @@ std::optional<std::vector<eval::Value>> bindKeywordArguments(
         auto it = std::find(parameter_names.begin(), parameter_names.end(), name);
         if (it == parameter_names.end())
         {
-            return std::nullopt;
+            return zeus::unexpected(eval::Error::InvalidNumberOfArguments);
         }
 
         const auto idx = static_cast<size_t>(std::distance(parameter_names.begin(), it));
         if (slots[idx].has_value())
         {
-            return std::nullopt;
+            return zeus::unexpected(eval::Error::InvalidNumberOfArguments);
         }
         slots[idx] = value;
     }
@@ -72,7 +72,7 @@ std::optional<std::vector<eval::Value>> bindKeywordArguments(
     {
         if (slots[i].has_value())
         {
-            return std::nullopt;
+            return zeus::unexpected(eval::Error::InvalidNumberOfArguments);
         }
     }
 
@@ -167,7 +167,7 @@ std::optional<std::vector<eval::Value>> bindKeywordArguments(
     const auto bound_args = bindKeywordArguments(parameter_names.value(), positional_arg_results, keyword_arg_results);
     if (! bound_args.has_value())
     {
-        return zeus::unexpected(eval::Error::InvalidNumberOfArguments);
+        return zeus::unexpected(bound_args.error());
     }
 
     return fn_value(bound_args.value());
