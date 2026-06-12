@@ -331,21 +331,7 @@ bool operator==(const CuraFormulaeEngine::eval::Value& lhs, const CuraFormulaeEn
         const auto& map_lhs = std::get<std::unordered_map<std::string, CuraFormulaeEngine::eval::Value>>(lhs.value);
         const auto& map_rhs = std::get<std::unordered_map<std::string, CuraFormulaeEngine::eval::Value>>(rhs.value);
 
-        if (map_lhs.size() != map_rhs.size())
-        {
-            return false;
-        }
-
-        for (const auto& [key, val_lhs] : map_lhs)
-        {
-            const auto it = map_rhs.find(key);
-            if (it == map_rhs.end() || val_lhs != it->second)
-            {
-                return false;
-            }
-        }
-
-        return true;
+    return map_lhs == map_rhs;
     }
 
     return false;
