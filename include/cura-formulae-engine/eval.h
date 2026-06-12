@@ -59,12 +59,8 @@ struct Value
             return operation(args);
         }
 
-        [[nodiscard]] std::optional<std::vector<std::string>> getSignature() const noexcept
+        [[nodiscard]] std::vector<std::string> getSignature() const noexcept
         {
-            if (signature.empty())
-            {
-                return std::nullopt;
-            }
             return signature;
         }
     };
