@@ -23,7 +23,7 @@ struct FnApplicationExpr final : Expr
     std::vector<ExprPtr> args;
     std::vector<KeywordArg> kwargs;
 
-    FnApplicationExpr(ExprPtr fn, std::vector<ExprPtr> args, std::vector<KeywordArg> kwargs = {})
+    FnApplicationExpr(ExprPtr fn, std::vector<ExprPtr>&& args, std::vector<KeywordArg>&& kwargs = {})
         : fn(std::move(fn))
         , args(std::move(args))
         , kwargs(std::move(kwargs))
