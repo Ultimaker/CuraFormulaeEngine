@@ -1,6 +1,7 @@
 #include "cura-formulae-engine/ast/comp_chain_expr.h"
 #include "cura-formulae-engine/eval.h"
 
+#include <algorithm>
 #include <string>
 #include <unordered_set>
 #include <variant>
@@ -90,29 +91,30 @@ namespace CuraFormulaeEngine::ast
             break;
         case Member:
         case NotMember:
-            if (!right_value_result.has_value())
+        {
+            bool found = false;
+            if (std::holds_alternative<std::string>(right_value.value))
             {
-                return zeus::unexpected(right_value_result.error());
+                if (!std::holds_alternative<std::string>(left_value.value))
+                {
+                    return zeus::unexpected(eval::Error::TypeMismatch);
+                }
+                const auto& haystack = std::get<std::string>(right_value.value);
+                const auto& needle = std::get<std::string>(left_value.value);
+                found = haystack.find(needle) != std::string::npos;
             }
-
-            const auto& rhs_value = right_value_result.value();
-            if (!std::holds_alternative<std::vector<eval::Value>>(rhs_value.value))
+            else if (std::holds_alternative<std::vector<eval::Value>>(right_value.value))
+            {
+                const auto& list = std::get<std::vector<eval::Value>>(right_value.value);
+                found = std::ranges::any_of(list, [&](const eval::Value& item) { return left_value == item; });
+            }
+            else
             {
                 return zeus::unexpected(eval::Error::TypeMismatch);
             }
-
-            comparison_result = operators[i] == NotMember;
-
-            const auto& list = std::get<std::vector<eval::Value>>(rhs_value.value);
-            for (const auto& item : list)
-            {
-                if (left_value == item)
-                {
-                    comparison_result = operators[i] == Member;
-                    break;
-                }
-            }
+            comparison_result = (operators[i] == Member) ? found : !found;
             break;
+        }
         }
 
         if (!comparison_result.has_value())
