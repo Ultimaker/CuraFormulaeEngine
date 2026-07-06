@@ -508,6 +508,126 @@ TEST_CASE("not member list", "[parser, member]")
     REQUIRE(eval.value().deepEq(expected_eval));
 }
 
+TEST_CASE("member string found", "[parser, member]")
+{
+    auto input = R"("foo" in "foobar")"sv;
+
+    std::vector<ExprPtr> expressions;
+    expressions.push_back(make_expr_ptr<StringExpr>(std::string("foo")));
+    expressions.push_back(make_expr_ptr<StringExpr>(std::string("foobar")));
+
+    const auto expected_ast = make_expr_ptr<ComparisonChainExpr>(std::move(expressions), std::vector{ComparisonOperators::Member});
+    const auto expected_eval = CuraFormulaeEngine::eval::Value(true);
+
+    const auto message = CuraFormulaeEngine::parser::parse(input);
+    REQUIRE(message.has_value());
+    const auto &ast = message.value();
+    REQUIRE(ast.deepEq(expected_ast));
+    const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
+    REQUIRE(eval.has_value());
+    REQUIRE(eval.value().deepEq(expected_eval));
+}
+
+TEST_CASE("member string not found", "[parser, member]")
+{
+    auto input = R"("baz" in "foobar")"sv;
+
+    std::vector<ExprPtr> expressions;
+    expressions.push_back(make_expr_ptr<StringExpr>(std::string("baz")));
+    expressions.push_back(make_expr_ptr<StringExpr>(std::string("foobar")));
+
+    const auto expected_ast = make_expr_ptr<ComparisonChainExpr>(std::move(expressions), std::vector{ComparisonOperators::Member});
+    const auto expected_eval = CuraFormulaeEngine::eval::Value(false);
+
+    const auto message = CuraFormulaeEngine::parser::parse(input);
+    REQUIRE(message.has_value());
+    const auto &ast = message.value();
+    REQUIRE(ast.deepEq(expected_ast));
+    const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
+    REQUIRE(eval.has_value());
+    REQUIRE(eval.value().deepEq(expected_eval));
+}
+
+TEST_CASE("not member string found", "[parser, member]")
+{
+    auto input = R"("foo" not in "foobar")"sv;
+
+    std::vector<ExprPtr> expressions;
+    expressions.push_back(make_expr_ptr<StringExpr>(std::string("foo")));
+    expressions.push_back(make_expr_ptr<StringExpr>(std::string("foobar")));
+
+    const auto expected_ast = make_expr_ptr<ComparisonChainExpr>(std::move(expressions), std::vector{ComparisonOperators::NotMember});
+    const auto expected_eval = CuraFormulaeEngine::eval::Value(false);
+
+    const auto message = CuraFormulaeEngine::parser::parse(input);
+    REQUIRE(message.has_value());
+    const auto &ast = message.value();
+    REQUIRE(ast.deepEq(expected_ast));
+    const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
+    REQUIRE(eval.has_value());
+    REQUIRE(eval.value().deepEq(expected_eval));
+}
+
+TEST_CASE("not member string not found", "[parser, member]")
+{
+    auto input = R"("baz" not in "foobar")"sv;
+
+    std::vector<ExprPtr> expressions;
+    expressions.push_back(make_expr_ptr<StringExpr>(std::string("baz")));
+    expressions.push_back(make_expr_ptr<StringExpr>(std::string("foobar")));
+
+    const auto expected_ast = make_expr_ptr<ComparisonChainExpr>(std::move(expressions), std::vector{ComparisonOperators::NotMember});
+    const auto expected_eval = CuraFormulaeEngine::eval::Value(true);
+
+    const auto message = CuraFormulaeEngine::parser::parse(input);
+    REQUIRE(message.has_value());
+    const auto &ast = message.value();
+    REQUIRE(ast.deepEq(expected_ast));
+    const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
+    REQUIRE(eval.has_value());
+    REQUIRE(eval.value().deepEq(expected_eval));
+}
+
+TEST_CASE("member string in list", "[parser, member]")
+{
+    auto input = R"("foo" in ["foo", "bar"])"sv;
+
+    std::vector<ExprPtr> expressions;
+    expressions.push_back(make_expr_ptr<StringExpr>(std::string("foo")));
+    expressions.push_back(make_list_expr(make_expr_ptr<StringExpr>(std::string("foo")), make_expr_ptr<StringExpr>(std::string("bar"))));
+
+    const auto expected_ast = make_expr_ptr<ComparisonChainExpr>(std::move(expressions), std::vector{ComparisonOperators::Member});
+    const auto expected_eval = CuraFormulaeEngine::eval::Value(true);
+
+    const auto message = CuraFormulaeEngine::parser::parse(input);
+    REQUIRE(message.has_value());
+    const auto &ast = message.value();
+    REQUIRE(ast.deepEq(expected_ast));
+    const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
+    REQUIRE(eval.has_value());
+    REQUIRE(eval.value().deepEq(expected_eval));
+}
+
+TEST_CASE("not member string in list", "[parser, member]")
+{
+    auto input = R"("baz" not in ["foo", "bar"])"sv;
+
+    std::vector<ExprPtr> expressions;
+    expressions.push_back(make_expr_ptr<StringExpr>(std::string("baz")));
+    expressions.push_back(make_list_expr(make_expr_ptr<StringExpr>(std::string("foo")), make_expr_ptr<StringExpr>(std::string("bar"))));
+
+    const auto expected_ast = make_expr_ptr<ComparisonChainExpr>(std::move(expressions), std::vector{ComparisonOperators::NotMember});
+    const auto expected_eval = CuraFormulaeEngine::eval::Value(true);
+
+    const auto message = CuraFormulaeEngine::parser::parse(input);
+    REQUIRE(message.has_value());
+    const auto &ast = message.value();
+    REQUIRE(ast.deepEq(expected_ast));
+    const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
+    REQUIRE(eval.has_value());
+    REQUIRE(eval.value().deepEq(expected_eval));
+}
+
 TEST_CASE("expression or operator", "[parser, expression]")
 {
     auto input = "True or False"sv;
