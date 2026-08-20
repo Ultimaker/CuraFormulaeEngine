@@ -1,8 +1,8 @@
 #pragma once
 
 #include "cura-formulae-engine/ast/ast.h"
-#include "expr_ptr.h"
 #include "cura-formulae-engine/eval.h"
+#include "expr_ptr.h"
 
 #include <optional>
 #include <unordered_set>
@@ -10,16 +10,13 @@
 #include <vector>
 #include <zeus/expected.hpp>
 
-namespace CuraFormulaeEngine::ast
-{
+namespace CuraFormulaeEngine::ast {
 
-struct ListComprehensionExpr final : Expr
-{
-    struct loop
-    {
-        ExprPtr iterator_key;
-        ExprPtr iterable;
-        std::vector<ExprPtr> conditions;
+struct ListComprehensionExpr final : Expr {
+  struct loop {
+    ExprPtr iterator_key;
+    ExprPtr iterable;
+    std::vector<ExprPtr> conditions;
 
         loop(ExprPtr&& iterator_key, ExprPtr&& iterable, std::vector<ExprPtr>&& conditions)
             : iterator_key(std::move(iterator_key))
@@ -29,8 +26,8 @@ struct ListComprehensionExpr final : Expr
         }
     };
 
-    ExprPtr iterator;
-    std::vector<loop> loops;
+  ExprPtr iterator;
+  std::vector<loop> loops;
 
     ListComprehensionExpr(ExprPtr&& iterator, std::vector<loop>&& loops)
         : iterator(std::move(iterator))
@@ -38,18 +35,21 @@ struct ListComprehensionExpr final : Expr
     {
     }
 
-    [[nodiscard]] std::string toString() const noexcept final;
+  [[nodiscard]] std::string toString() const noexcept final;
 
-    std::optional<eval::Error> handle_loop(const size_t loop_index, env::LocalEnvironment& local_environment, std::vector<eval::Value>& results) const;
+  std::optional<eval::Error>
+  handle_loop(const size_t loop_index, env::LocalEnvironment &local_environment,
+              std::vector<eval::Value> &results) const;
 
-    [[nodiscard]] eval::Result evaluate(const env::Environment* environment) const noexcept final;
+  [[nodiscard]] eval::Result
+  evaluate(const env::Environment *environment) const noexcept final;
 
-    [[nodiscard]] std::unordered_set<std::string> freeVariables() const noexcept final;
+  [[nodiscard]] std::unordered_set<std::string>
+  freeVariables() const noexcept final;
 
-    [[nodiscard]] bool deepEq(const Expr& other) const noexcept final;
+  [[nodiscard]] bool deepEq(const Expr &other) const noexcept final;
 
-    void visitAll(std::function<void(const Expr&)> visitor) const noexcept final;
-
+  void visitAll(std::function<void(const Expr &)> visitor) const noexcept final;
 };
 
 } // namespace CuraFormulaeEngine::ast

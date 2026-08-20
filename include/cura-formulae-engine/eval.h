@@ -17,33 +17,30 @@
 
 #include <cstddef>
 #include <functional>
+#include <spdlog/spdlog.h>
 #include <string>
 #include <unordered_map>
 #include <variant>
 #include <vector>
 #include <zeus/expected.hpp>
-#include <spdlog/spdlog.h>
 
-namespace CuraFormulaeEngine::eval
-{
+namespace CuraFormulaeEngine::eval {
 
 struct Value;
 
-enum class Error
-{
-    TypeMismatch,
-    UndefinedVariable,
-    DivisionByZero,
-    InvalidNumberOfArguments,
-    IndexOutOfBounds,
-    ValueError
+enum class Error {
+  TypeMismatch,
+  UndefinedVariable,
+  DivisionByZero,
+  InvalidNumberOfArguments,
+  IndexOutOfBounds,
+  ValueError
 };
 
 using Result = zeus::expected<Value, Error>;
 
-struct Value
-{
-    using fn_t = std::function<Result(const std::vector<Value>&)>;
+struct Value {
+  using fn_t = std::function<Result(const std::vector<Value> &)>;
 
     struct rich_fn_t
     {
@@ -67,37 +64,19 @@ struct Value
 
     std::variant<bool, double, std::int64_t, std::string, std::vector<Value>, fn_t, rich_fn_t, std::unordered_map<std::string, Value>, std::nullptr_t> value = nullptr;
 
-    Value() noexcept = default;
+  Value() noexcept = default;
 
-    Value(const bool& value) noexcept
-        : value{ value }
-    {
-    }
+  Value(const bool &value) noexcept : value{value} {}
 
-    Value(const double& value) noexcept
-        : value{ value }
-    {
-    }
+  Value(const double &value) noexcept : value{value} {}
 
-    Value(const std::int64_t& value) noexcept
-        : value{ value }
-    {
-    }
+  Value(const std::int64_t &value) noexcept : value{value} {}
 
-    Value(const std::string& value) noexcept
-        : value{ value }
-    {
-    }
+  Value(const std::string &value) noexcept : value{value} {}
 
-    Value(const std::vector<Value>& value) noexcept
-        : value{ value }
-    {
-    }
+  Value(const std::vector<Value> &value) noexcept : value{value} {}
 
-    Value(const fn_t& value) noexcept
-        : value{ value }
-    {
-    }
+  Value(const fn_t &value) noexcept : value{value} {}
 
     Value(const rich_fn_t& value) noexcept
         : value{ value }
@@ -114,31 +93,28 @@ struct Value
     {
     }
 
-    static Value none() noexcept
-    {
-        return Value(nullptr);
-    }
+  static Value none() noexcept { return Value(nullptr); }
 
-    ~Value() = default;
+  ~Value() = default;
 
-    Value(Value&& other) noexcept = default;
-    Value(const Value& other) noexcept = default;
-    Value& operator=(const Value& other) noexcept = default;
-    Value& operator=(Value&& other) noexcept = default;
+  Value(Value &&other) noexcept = default;
+  Value(const Value &other) noexcept = default;
+  Value &operator=(const Value &other) noexcept = default;
+  Value &operator=(Value &&other) noexcept = default;
 
-    [[nodiscard]] std::string toString() const noexcept;
+  [[nodiscard]] std::string toString() const noexcept;
 
-    [[nodiscard]] bool deepEq(const Value& other) const noexcept;
+  [[nodiscard]] bool deepEq(const Value &other) const noexcept;
 
-    [[nodiscard]] bool isTruthy() const noexcept;
+  [[nodiscard]] bool isTruthy() const noexcept;
 
-    [[nodiscard]] zeus::expected<double, Error> numeric() const noexcept;
+  [[nodiscard]] zeus::expected<double, Error> numeric() const noexcept;
 
 #ifdef EMSCRIPTEN
-    [[nodiscard]] emscripten::val toEmscripten() const;
+  [[nodiscard]] emscripten::val toEmscripten() const;
 #endif
 
-    Result operator[](const Value&) const noexcept;
+  Result operator[](const Value &) const noexcept;
 };
 
 /**
@@ -149,39 +125,62 @@ struct Value
  * @param result
  * @return
  */
-template<typename ExpectedType>
-zeus::expected<ExpectedType, Error> try_get(const Result& result)
-{
-    if (! result.has_value())
-    {
-        return zeus::unexpected(result.error());
-    }
+template <typename ExpectedType>
+zeus::expected<ExpectedType, Error> try_get(const Result &result) {
+  if (!result.has_value()) {
+    return zeus::unexpected(result.error());
+  }
 
-    const auto& type_result = result.value();
-    if (! std::holds_alternative<ExpectedType>(type_result.value))
-    {
-        return zeus::unexpected(Error::TypeMismatch);
-    }
+  const auto &type_result = result.value();
+  if (!std::holds_alternative<ExpectedType>(type_result.value)) {
+    return zeus::unexpected(Error::TypeMismatch);
+  }
 
-    return std::get<ExpectedType>(type_result.value);
+  return std::get<ExpectedType>(type_result.value);
 }
 
-Result pow(const Value& lhs, const Value& rhs);
+Result pow(const Value &lhs, const Value &rhs);
 
 } // namespace CuraFormulaeEngine::eval
 
-bool operator==(const CuraFormulaeEngine::eval::Value& lhs, const CuraFormulaeEngine::eval::Value& rhs) noexcept;
-bool operator!=(const CuraFormulaeEngine::eval::Value& lhs, const CuraFormulaeEngine::eval::Value& rhs) noexcept;
-zeus::expected<bool, CuraFormulaeEngine::eval::Error> operator<(const CuraFormulaeEngine::eval::Value& lhs, const CuraFormulaeEngine::eval::Value& rhs) noexcept;
-zeus::expected<bool, CuraFormulaeEngine::eval::Error> operator<=(const CuraFormulaeEngine::eval::Value& lhs, const CuraFormulaeEngine::eval::Value& rhs) noexcept;
-zeus::expected<bool, CuraFormulaeEngine::eval::Error> operator>=(const CuraFormulaeEngine::eval::Value& lhs, const CuraFormulaeEngine::eval::Value& rhs) noexcept;
-zeus::expected<bool, CuraFormulaeEngine::eval::Error> operator>(const CuraFormulaeEngine::eval::Value& lhs, const CuraFormulaeEngine::eval::Value& rhs) noexcept;
-zeus::expected<bool, CuraFormulaeEngine::eval::Error> operator&&(const CuraFormulaeEngine::eval::Value& lhs, const CuraFormulaeEngine::eval::Value& rhs) noexcept;
-zeus::expected<bool, CuraFormulaeEngine::eval::Error> operator||(const CuraFormulaeEngine::eval::Value& lhs, const CuraFormulaeEngine::eval::Value& rhs) noexcept;
-CuraFormulaeEngine::eval::Result operator+(const CuraFormulaeEngine::eval::Value& lhs, const CuraFormulaeEngine::eval::Value& rhs) noexcept;
-CuraFormulaeEngine::eval::Result operator-(const CuraFormulaeEngine::eval::Value& lhs, const CuraFormulaeEngine::eval::Value& rhs) noexcept;
-CuraFormulaeEngine::eval::Result operator*(const CuraFormulaeEngine::eval::Value& lhs, const CuraFormulaeEngine::eval::Value& rhs) noexcept;
-CuraFormulaeEngine::eval::Result operator/(const CuraFormulaeEngine::eval::Value& lhs, const CuraFormulaeEngine::eval::Value& rhs) noexcept;
-CuraFormulaeEngine::eval::Result operator%(const CuraFormulaeEngine::eval::Value& lhs, const CuraFormulaeEngine::eval::Value& rhs) noexcept;
-CuraFormulaeEngine::eval::Result operator!(const CuraFormulaeEngine::eval::Value& operand) noexcept;
-CuraFormulaeEngine::eval::Result operator-(const CuraFormulaeEngine::eval::Value& operand) noexcept;
+bool operator==(const CuraFormulaeEngine::eval::Value &lhs,
+                const CuraFormulaeEngine::eval::Value &rhs) noexcept;
+bool operator!=(const CuraFormulaeEngine::eval::Value &lhs,
+                const CuraFormulaeEngine::eval::Value &rhs) noexcept;
+zeus::expected<bool, CuraFormulaeEngine::eval::Error>
+operator<(const CuraFormulaeEngine::eval::Value &lhs,
+          const CuraFormulaeEngine::eval::Value &rhs) noexcept;
+zeus::expected<bool, CuraFormulaeEngine::eval::Error>
+operator<=(const CuraFormulaeEngine::eval::Value &lhs,
+           const CuraFormulaeEngine::eval::Value &rhs) noexcept;
+zeus::expected<bool, CuraFormulaeEngine::eval::Error>
+operator>=(const CuraFormulaeEngine::eval::Value &lhs,
+           const CuraFormulaeEngine::eval::Value &rhs) noexcept;
+zeus::expected<bool, CuraFormulaeEngine::eval::Error>
+operator>(const CuraFormulaeEngine::eval::Value &lhs,
+          const CuraFormulaeEngine::eval::Value &rhs) noexcept;
+zeus::expected<bool, CuraFormulaeEngine::eval::Error>
+operator&&(const CuraFormulaeEngine::eval::Value &lhs,
+           const CuraFormulaeEngine::eval::Value &rhs) noexcept;
+zeus::expected<bool, CuraFormulaeEngine::eval::Error>
+operator||(const CuraFormulaeEngine::eval::Value &lhs,
+           const CuraFormulaeEngine::eval::Value &rhs) noexcept;
+CuraFormulaeEngine::eval::Result
+operator+(const CuraFormulaeEngine::eval::Value &lhs,
+          const CuraFormulaeEngine::eval::Value &rhs) noexcept;
+CuraFormulaeEngine::eval::Result
+operator-(const CuraFormulaeEngine::eval::Value &lhs,
+          const CuraFormulaeEngine::eval::Value &rhs) noexcept;
+CuraFormulaeEngine::eval::Result
+operator*(const CuraFormulaeEngine::eval::Value &lhs,
+          const CuraFormulaeEngine::eval::Value &rhs) noexcept;
+CuraFormulaeEngine::eval::Result
+operator/(const CuraFormulaeEngine::eval::Value &lhs,
+          const CuraFormulaeEngine::eval::Value &rhs) noexcept;
+CuraFormulaeEngine::eval::Result
+operator%(const CuraFormulaeEngine::eval::Value &lhs,
+          const CuraFormulaeEngine::eval::Value &rhs) noexcept;
+CuraFormulaeEngine::eval::Result
+operator!(const CuraFormulaeEngine::eval::Value &operand) noexcept;
+CuraFormulaeEngine::eval::Result
+operator-(const CuraFormulaeEngine::eval::Value &operand) noexcept;

@@ -24,54 +24,49 @@
 #include <string>
 #include <variant>
 
-namespace CuraFormulaeEngine::parser
-{
+namespace CuraFormulaeEngine::parser {
 
-struct ApplyExpr
-{
-    ApplyExpr() = default;
-    ApplyExpr(const ApplyExpr&) = default;
-    ApplyExpr(ApplyExpr&&) = default;
-    ApplyExpr& operator=(const ApplyExpr&) = default;
-    ApplyExpr& operator=(ApplyExpr&&) = default;
+struct ApplyExpr {
+  ApplyExpr() = default;
+  ApplyExpr(const ApplyExpr &) = default;
+  ApplyExpr(ApplyExpr &&) = default;
+  ApplyExpr &operator=(const ApplyExpr &) = default;
+  ApplyExpr &operator=(ApplyExpr &&) = default;
 
-    virtual ~ApplyExpr() = default;
-    virtual ast::ExprPtr apply(ast::ExprPtr&&) = 0;
+  virtual ~ApplyExpr() = default;
+  virtual ast::ExprPtr apply(ast::ExprPtr &&) = 0;
 };
 
-struct IndexExpr final : ApplyExpr
-{
-    IndexExpr() = default;
+struct IndexExpr final : ApplyExpr {
+  IndexExpr() = default;
 
-    IndexExpr(std::optional<ast::ExprPtr>&& index)
-        : index(std::move(index))
-    {
-    }
+  IndexExpr(std::optional<ast::ExprPtr> &&index) : index(std::move(index)) {}
 
-    std::optional<ast::ExprPtr> index;
+  std::optional<ast::ExprPtr> index;
 
-    ast::ExprPtr apply(ast::ExprPtr&& array) override { return std::move(array)[std::move(index.value())]; }
+  ast::ExprPtr apply(ast::ExprPtr &&array) override {
+    return std::move(array)[std::move(index.value())];
+  }
 };
 
-struct ApplySliceExpr final : ApplyExpr
-{
-    ApplySliceExpr() = default;
+struct ApplySliceExpr final : ApplyExpr {
+  ApplySliceExpr() = default;
 
-    ApplySliceExpr(std::optional<ast::ExprPtr>&& start_index, std::optional<ast::ExprPtr>&& end_index, std::optional<ast::ExprPtr>&& step)
-        : start_index(std::move(start_index))
-        , end_index(std::move(end_index))
-        , step(std::move(step))
-    {
-    }
+  ApplySliceExpr(std::optional<ast::ExprPtr> &&start_index,
+                 std::optional<ast::ExprPtr> &&end_index,
+                 std::optional<ast::ExprPtr> &&step)
+      : start_index(std::move(start_index)), end_index(std::move(end_index)),
+        step(std::move(step)) {}
 
-    std::optional<ast::ExprPtr> start_index;
-    std::optional<ast::ExprPtr> end_index;
-    std::optional<ast::ExprPtr> step;
+  std::optional<ast::ExprPtr> start_index;
+  std::optional<ast::ExprPtr> end_index;
+  std::optional<ast::ExprPtr> step;
 
-    ast::ExprPtr apply(ast::ExprPtr&& array) override
-    {
-        return { std::make_unique<ast::SliceExpr>(std::move(array), std::move(start_index), std::move(end_index), std::move(step)) };
-    }
+  ast::ExprPtr apply(ast::ExprPtr &&array) override {
+    return {std::make_unique<ast::SliceExpr>(
+        std::move(array), std::move(start_index), std::move(end_index),
+        std::move(step))};
+  }
 };
 
 struct ApplyFnApplicationExpr final : ApplyExpr
@@ -80,10 +75,8 @@ struct ApplyFnApplicationExpr final : ApplyExpr
 
     ApplyFnApplicationExpr() = default;
 
-    ApplyFnApplicationExpr(std::vector<ast::ExprPtr>&& args)
-        : args(std::move(args))
-    {
-    }
+  ApplyFnApplicationExpr(std::vector<ast::ExprPtr> &&args)
+      : args(std::move(args)) {}
 
     ApplyFnApplicationExpr(std::vector<FnArgElement>&& arg_elements)
     {
@@ -126,19 +119,22 @@ struct ApplyPropertyAccessExpr final : ApplyExpr
     }
 };
 
-struct VariableOrFnApplicationGrammarOrArrayIndexingGrammar : lexy::token_production
-{
-    struct SliceElementColon : token_production
-    {
-        static constexpr auto rule = lexy::dsl::if_(lexy::dsl::peek_not(lexy::dsl::colon) >> lexy::dsl::p<NestedGrammar>);
-        static constexpr auto value = lexy::callback<std::optional<ast::ExprPtr>>([](ast::ExprPtr expr) { return expr; }, []() { return std::nullopt; });
-    };
+struct VariableOrFnApplicationGrammarOrArrayIndexingGrammar
+    : lexy::token_production {
+  struct SliceElementColon : token_production {
+    static constexpr auto rule = lexy::dsl::if_(
+        lexy::dsl::peek_not(lexy::dsl::colon) >> lexy::dsl::p<NestedGrammar>);
+    static constexpr auto value = lexy::callback<std::optional<ast::ExprPtr>>(
+        [](ast::ExprPtr expr) { return expr; }, []() { return std::nullopt; });
+  };
 
-    struct SliceElementColonOrBracket : token_production
-    {
-        static constexpr auto rule = lexy::dsl::if_(lexy::dsl::peek_not(lexy::dsl::colon | lexy::dsl::lit_c<']'>) >> lexy::dsl::p<NestedGrammar>);
-        static constexpr auto value = lexy::callback<std::optional<ast::ExprPtr>>([](ast::ExprPtr expr) { return expr; }, []() { return std::nullopt; });
-    };
+  struct SliceElementColonOrBracket : token_production {
+    static constexpr auto rule = lexy::dsl::if_(
+        lexy::dsl::peek_not(lexy::dsl::colon | lexy::dsl::lit_c<']'>) >>
+        lexy::dsl::p<NestedGrammar>);
+    static constexpr auto value = lexy::callback<std::optional<ast::ExprPtr>>(
+        [](ast::ExprPtr expr) { return expr; }, []() { return std::nullopt; });
+  };
 
     struct FnApplicationGrammar : token_production
     {

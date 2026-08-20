@@ -6,13 +6,12 @@
 #include <lexy/callback.hpp>
 #include <lexy/dsl.hpp>
 
-namespace CuraFormulaeEngine::parser
-{
+namespace CuraFormulaeEngine::parser {
 
-struct NoneGrammar
-{
-    static constexpr auto rule = LEXY_LIT("None");
-    static constexpr auto value = lexy::callback<ast::ExprPtr>([]() { return ast::ExprPtr(std::make_unique<ast::NoneExpr>()); });
+struct NoneGrammar {
+  static constexpr auto rule = LEXY_LIT("None");
+  static constexpr auto value = lexy::callback<ast::ExprPtr>(
+      []() { return ast::ExprPtr(std::make_unique<ast::NoneExpr>()); });
 };
 
 } // namespace CuraFormulaeEngine::parser

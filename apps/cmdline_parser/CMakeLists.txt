@@ -11,4 +11,3 @@ if (${EXTENSIVE_WARNINGS})
 endif ()
 
 target_link_libraries(cmdline_parser PUBLIC cura-formulae-engine foonathan::lexy range-v3::range-v3)
-

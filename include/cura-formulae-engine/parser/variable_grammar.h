@@ -6,8 +6,7 @@
 #include <lexy/callback.hpp>
 #include <lexy/dsl.hpp>
 
-namespace CuraFormulaeEngine::parser
-{
+namespace CuraFormulaeEngine::parser {
 
 struct VariableGrammar : lexy::token_production
 {

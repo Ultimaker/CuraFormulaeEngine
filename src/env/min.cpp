@@ -6,8 +6,7 @@
 #include <variant>
 #include <vector>
 
-namespace CuraFormulaeEngine::env
-{
+namespace CuraFormulaeEngine::env {
 
 [[nodiscard]] eval::Result MinFunction::operator()(const std::vector<eval::Value> &args) const noexcept
 {
@@ -90,7 +89,7 @@ namespace CuraFormulaeEngine::env
     {
         return find_min(std::get<std::vector<eval::Value>>(args[0].value));
     }
-    
+
     if (args.size() == 2)
     {
         const bool second_arg_is_callable = std::holds_alternative<eval::Value::fn_t>(args[1].value)

@@ -5,15 +5,13 @@
 #include <variant>
 #include <vector>
 
-namespace CuraFormulaeEngine::env
-{
+namespace CuraFormulaeEngine::env {
 
-const eval::Value::fn_t map = [](const std::vector<eval::Value> &args) -> eval::Result
-{
-    if (args.size() != 2)
-    {
-        return zeus::unexpected(eval::Error::InvalidNumberOfArguments);
-    }
+const eval::Value::fn_t map =
+    [](const std::vector<eval::Value> &args) -> eval::Result {
+  if (args.size() != 2) {
+    return zeus::unexpected(eval::Error::InvalidNumberOfArguments);
+  }
 
     if (! std::holds_alternative<std::vector<eval::Value>>(args[1].value))
     {
@@ -36,17 +34,15 @@ const eval::Value::fn_t map = [](const std::vector<eval::Value> &args) -> eval::
 
     const auto list = std::get<std::vector<eval::Value>>(args[1].value);
 
-    std::vector<eval::Value> result;
-    for (const auto& element : list)
-    {
-        const auto mapped = fn({ element });
-        if (! mapped.has_value())
-        {
-            return zeus::unexpected(eval::Error::TypeMismatch);
-        }
-        result.push_back(mapped.value());
+  std::vector<eval::Value> result;
+  for (const auto &element : list) {
+    const auto mapped = fn({element});
+    if (!mapped.has_value()) {
+      return zeus::unexpected(eval::Error::TypeMismatch);
     }
-    return result;
+    result.push_back(mapped.value());
+  }
+  return result;
 };
 
 } // namespace CuraFormulaeEngine::env

@@ -1,8 +1,8 @@
 #pragma once
 
 #include "cura-formulae-engine/ast/ast.h"
-#include "expr_ptr.h"
 #include "cura-formulae-engine/eval.h"
+#include "expr_ptr.h"
 
 #include <zeus/expected.hpp>
 
@@ -13,15 +13,13 @@
 #include <variant>
 #include <vector>
 
-namespace CuraFormulaeEngine::ast
-{
+namespace CuraFormulaeEngine::ast {
 
-struct SliceExpr final : Expr
-{
-    ExprPtr array;
-    std::optional<ExprPtr> start_index;
-    std::optional<ExprPtr> end_index;
-    std::optional<ExprPtr> step_size;
+struct SliceExpr final : Expr {
+  ExprPtr array;
+  std::optional<ExprPtr> start_index;
+  std::optional<ExprPtr> end_index;
+  std::optional<ExprPtr> step_size;
 
     SliceExpr(ExprPtr&& array, std::optional<ExprPtr>&& start_index, std::optional<ExprPtr>&& end_index, std::optional<ExprPtr>&& step_size)
         : array(std::move(array))
@@ -31,16 +29,17 @@ struct SliceExpr final : Expr
     {
     }
 
-    [[nodiscard]] std::string toString() const noexcept final;
+  [[nodiscard]] std::string toString() const noexcept final;
 
-    [[nodiscard]] eval::Result evaluate(const env::Environment* environment) const noexcept final;
+  [[nodiscard]] eval::Result
+  evaluate(const env::Environment *environment) const noexcept final;
 
-    [[nodiscard]] std::unordered_set<std::string> freeVariables() const noexcept final;
+  [[nodiscard]] std::unordered_set<std::string>
+  freeVariables() const noexcept final;
 
-    [[nodiscard]] bool deepEq(const Expr& other) const noexcept final;
+  [[nodiscard]] bool deepEq(const Expr &other) const noexcept final;
 
-    void visitAll(std::function<void(const Expr&)> visitor) const noexcept final;
-
+  void visitAll(std::function<void(const Expr &)> visitor) const noexcept final;
 };
 
 } // namespace CuraFormulaeEngine::ast

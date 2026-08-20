@@ -29,15 +29,13 @@
 #include <limits>
 #include <numbers>
 
-namespace CuraFormulaeEngine::env
-{
+namespace CuraFormulaeEngine::env {
 
 /**
  * @brief The standard environment.
  */
-CURA_FORMULAE_ENGINE_API const EnvironmentMap std_env = []()
-{
-    EnvironmentMap env;
+CURA_FORMULAE_ENGINE_API const EnvironmentMap std_env = []() {
+  EnvironmentMap env;
 
     env.set("abs", eval::Value(abs));
     env.set("all", eval::Value(all));
@@ -69,7 +67,7 @@ CURA_FORMULAE_ENGINE_API const EnvironmentMap std_env = []()
     math_props["tau"] = eval::Value(std::numbers::pi * 2.0);
     math_props["radians"] = eval::Value(math_radians);
     math_props["sqrt"] = eval::Value(math_sqrt);
-    
+
     env.set("math", eval::Value(math_props));
 
     return env;

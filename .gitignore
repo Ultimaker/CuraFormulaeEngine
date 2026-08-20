@@ -33,5 +33,11 @@
 
 build/
 cmake-build-*/
+CMakeUserPresets.json
 .idea
 .vs
+
+# Added by the agentic bootstrap: byproducts of the hooks it installs.
+__pycache__/
+*.py[cod]
+.agents/**/*.bootstrap-tmp
