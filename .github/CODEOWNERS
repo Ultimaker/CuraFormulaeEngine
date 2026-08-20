@@ -1,0 +1,12 @@
+# Global default
+*                       @Ultimaker/cura-core
+
+# Packaging & Build System
+conanfile.py            @Ultimaker/cura-core @Ultimaker/devops
+conandata.yml           @Ultimaker/cura-core @Ultimaker/devops
+CMakeLists.txt          @Ultimaker/cura-core @Ultimaker/devops
+/cmake/                 @Ultimaker/cura-core @Ultimaker/devops
+
+# CI / CD Workflows & Agent Configurations
+/.github/               @Ultimaker/cura-core @Ultimaker/devops
+/.agents/               @Ultimaker/cura-core
