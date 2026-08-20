@@ -1,5 +1,6 @@
 #pragma once
 
+#include "bool_grammar.h"
 #include "cura-formulae-engine/ast/binary_expr/add_expr.h"
 #include "cura-formulae-engine/ast/binary_expr/and_expr.h"
 #include "cura-formulae-engine/ast/binary_expr/div_expr.h"
@@ -12,6 +13,11 @@
 #include "cura-formulae-engine/ast/expr_ptr.h"
 #include "cura-formulae-engine/ast/unary_expr/neg_expr.h"
 #include "cura-formulae-engine/ast/unary_expr/not_expr.h"
+#include "list_grammar.h"
+#include "none_grammar.h"
+#include "number_grammar.h"
+#include "parens_grammar.h"
+#include "string_grammar.h"
 #include "variable_or_fn_application_grammar_or_array_indexing_grammar.h"
 
 #include <lexy/callback/adapter.hpp>
@@ -20,89 +26,79 @@
 #include <memory>
 #include <utility>
 
-namespace CuraFormulaeEngine::parser
-{
+namespace CuraFormulaeEngine::parser {
 
-struct MathExprGrammar : lexy::expression_production
-{
-    static constexpr auto whitespace = lexy::dsl::ascii::space;
+struct MathExprGrammar : lexy::expression_production {
+  static constexpr auto whitespace = lexy::dsl::ascii::space;
 
-    // clang-format off
+  // clang-format off
     static constexpr auto atom
         = lexy::dsl::p<VariableOrFnApplicationGrammarOrArrayIndexingGrammar>;
     // clang-format on
 
-    static constexpr auto op_pow = lexy::dsl::op(LEXY_LIT("**"));
-    struct number_power : lexy::dsl::infix_op_right
-    {
-        static constexpr auto op = op_pow;
-        using operand = lexy::dsl::atom;
-    };
+  static constexpr auto op_pow = lexy::dsl::op(LEXY_LIT("**"));
+  struct number_power : lexy::dsl::infix_op_right {
+    static constexpr auto op = op_pow;
+    using operand = lexy::dsl::atom;
+  };
 
-    static constexpr auto op_neg = lexy::dsl::op(LEXY_LIT("-"));
-    struct number_prefix : lexy::dsl::prefix_op
-    {
-        static constexpr auto op = op_neg;
-        using operand = number_power;
-    };
+  static constexpr auto op_neg = lexy::dsl::op(LEXY_LIT("-"));
+  struct number_prefix : lexy::dsl::prefix_op {
+    static constexpr auto op = op_neg;
+    using operand = number_power;
+  };
 
-    static constexpr auto op_mul = lexy::dsl::op(LEXY_LIT("*"));
-    static constexpr auto op_div = lexy::dsl::op(LEXY_LIT("/"));
-    static constexpr auto op_mod = lexy::dsl::op(LEXY_LIT("%"));
-    struct number_product : lexy::dsl::infix_op_left
-    {
-        using operand = number_prefix;
-        static constexpr auto op = op_mul / op_div / op_mod;
-    };
+  static constexpr auto op_mul = lexy::dsl::op(LEXY_LIT("*"));
+  static constexpr auto op_div = lexy::dsl::op(LEXY_LIT("/"));
+  static constexpr auto op_mod = lexy::dsl::op(LEXY_LIT("%"));
+  struct number_product : lexy::dsl::infix_op_left {
+    using operand = number_prefix;
+    static constexpr auto op = op_mul / op_div / op_mod;
+  };
 
+  static constexpr auto op_add = lexy::dsl::op(LEXY_LIT("+"));
+  static constexpr auto op_sub = lexy::dsl::op(LEXY_LIT("-"));
+  struct number_sum : lexy::dsl::infix_op_left {
+    using operand = number_product;
+    static constexpr auto op = op_add / op_sub;
+  };
 
-    static constexpr auto op_add = lexy::dsl::op(LEXY_LIT("+"));
-    static constexpr auto op_sub = lexy::dsl::op(LEXY_LIT("-"));
-    struct number_sum : lexy::dsl::infix_op_left
-    {
-        using operand = number_product;
-        static constexpr auto op = op_add / op_sub;
-    };
+  static constexpr auto op_eq = lexy::dsl::op(LEXY_LIT("=="));
+  static constexpr auto op_neq = lexy::dsl::op(LEXY_LIT("!="));
+  static constexpr auto op_lt = lexy::dsl::op(LEXY_LIT("<"));
+  static constexpr auto op_gt = lexy::dsl::op(LEXY_LIT(">"));
+  static constexpr auto op_leq = lexy::dsl::op(LEXY_LIT("<="));
+  static constexpr auto op_geq = lexy::dsl::op(LEXY_LIT(">="));
+  static constexpr auto op_not_member = lexy::dsl::op(LEXY_LIT("not in"));
+  static constexpr auto op_member = lexy::dsl::op(LEXY_LIT("in"));
 
-    static constexpr auto op_eq = lexy::dsl::op(LEXY_LIT("=="));
-    static constexpr auto op_neq = lexy::dsl::op(LEXY_LIT("!="));
-    static constexpr auto op_lt = lexy::dsl::op(LEXY_LIT("<"));
-    static constexpr auto op_gt = lexy::dsl::op(LEXY_LIT(">"));
-    static constexpr auto op_leq = lexy::dsl::op(LEXY_LIT("<="));
-    static constexpr auto op_geq = lexy::dsl::op(LEXY_LIT(">="));
-    static constexpr auto op_not_member = lexy::dsl::op(LEXY_LIT("not in"));
-    static constexpr auto op_member = lexy::dsl::op(LEXY_LIT("in"));
+  struct number_compare : lexy::dsl::infix_op_list {
+    using operand = number_sum;
+    static constexpr auto op = op_eq / op_neq / op_lt / op_gt / op_leq /
+                               op_geq / op_not_member / op_member;
+  };
 
-    struct number_compare : lexy::dsl::infix_op_list
-    {
-        using operand = number_sum;
-        static constexpr auto op = op_eq / op_neq / op_lt / op_gt / op_leq / op_geq / op_not_member / op_member;
-    };
+  static constexpr auto op_not = lexy::dsl::op(LEXY_LIT("not"));
+  struct bool_prefix : lexy::dsl::prefix_op {
+    static constexpr auto op = op_not;
+    using operand = number_compare;
+  };
 
-    static constexpr auto op_not = lexy::dsl::op(LEXY_LIT("not"));
-    struct bool_prefix : lexy::dsl::prefix_op
-    {
-        static constexpr auto op = op_not;
-        using operand = number_compare;
-    };
+  static constexpr auto op_and = lexy::dsl::op(LEXY_LIT("and"));
+  struct bool_and : lexy::dsl::infix_op_left {
+    static constexpr auto op = op_and;
+    using operand = bool_prefix;
+  };
 
-    static constexpr auto op_and = lexy::dsl::op(LEXY_LIT("and"));
-    struct bool_and : lexy::dsl::infix_op_left
-    {
-        static constexpr auto op = op_and;
-        using operand = bool_prefix;
-    };
+  static constexpr auto op_or = lexy::dsl::op(LEXY_LIT("or"));
+  struct bool_or : lexy::dsl::infix_op_left {
+    static constexpr auto op = op_or;
+    using operand = bool_and;
+  };
 
-    static constexpr auto op_or = lexy::dsl::op(LEXY_LIT("or"));
-    struct bool_or : lexy::dsl::infix_op_left
-    {
-        static constexpr auto op = op_or;
-        using operand = bool_and;
-    };
+  using operation = bool_or;
 
-    using operation = bool_or;
-
-    // clang-format off
+  // clang-format off
     static constexpr auto value = lexy::fold_inplace<std::unique_ptr<CuraFormulaeEngine::ast::ComparisonChainExpr>>(
         [] { return std::make_unique<CuraFormulaeEngine::ast::ComparisonChainExpr>(); },
         [](auto&& node, lexy::op<op_eq>) { node->operators.emplace_back(CuraFormulaeEngine::ast::ComparisonOperators::Equals); },
@@ -127,7 +123,7 @@ struct MathExprGrammar : lexy::expression_production
         [](ast::ExprPtr&& lhs, lexy::op<op_and>, ast::ExprPtr&& rhs) { return std::move(lhs) && std::move(rhs); },
         [](ast::ExprPtr&& lhs, lexy::op<op_or>, ast::ExprPtr&& rhs) { return std::move(lhs) || std::move(rhs); }
     );
-    // clang-format on
+  // clang-format on
 };
 
 } // namespace CuraFormulaeEngine::parser

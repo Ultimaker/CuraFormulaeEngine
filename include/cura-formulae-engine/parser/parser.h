@@ -15,13 +15,11 @@
 #include <lexy/input/string_input.hpp>
 #include <string_view>
 
-namespace CuraFormulaeEngine::parser
-{
+namespace CuraFormulaeEngine::parser {
 
-struct Grammar : public lexy::token_production
-{
-    static constexpr auto rule = lexy::dsl::p<ExprGrammar> + lexy::dsl::eof;
-    static constexpr auto value = lexy::forward<ast::ExprPtr>;
+struct Grammar : public lexy::token_production {
+  static constexpr auto rule = lexy::dsl::p<ExprGrammar> + lexy::dsl::eof;
+  static constexpr auto value = lexy::forward<ast::ExprPtr>;
 };
 
 using error_t = typename lexy::validate_result<lexy::_noop>::error_type;

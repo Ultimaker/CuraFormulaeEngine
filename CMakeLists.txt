@@ -1,16 +1,14 @@
 cmake_minimum_required(VERSION 3.26)
 project(cura-formulae-engine)
 
-include(CTest)
-
 find_package(standardprojectsettings REQUIRED)
 option(ENABLE_TESTS "Build with unit test" ON)
 option(EXTENSIVE_WARNINGS "Build with all warnings" ON)
 option(ENABLE_APPS "Build apps example" ON)
 
-if (ENABLE_TESTS AND NOT BUILD_TESTING)
-    message(STATUS "ENABLE_TESTS is ON, forcing BUILD_TESTING=ON so CTest can discover tests")
+if (ENABLE_TESTS)
     set(BUILD_TESTING ON CACHE BOOL "Enable CTest" FORCE)
+    include(CTest)
 endif ()
 
 find_package(spdlog REQUIRED)

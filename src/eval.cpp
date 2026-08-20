@@ -221,11 +221,11 @@ namespace CuraFormulaeEngine::eval {
         }
         if (std::holds_alternative<fn_t>(value))
         {
-            throw std::runtime_error("Cannot convert function to emscripten");
+            return emscripten::val::undefined();
         }
         if (std::holds_alternative<rich_fn_t>(value))
         {
-            throw std::runtime_error("Cannot convert function to emscripten");
+            return emscripten::val::undefined();
         }
         if (std::holds_alternative<std::unordered_map<std::string, Value>>(value))
         {
@@ -238,7 +238,7 @@ namespace CuraFormulaeEngine::eval {
             return obj;
         }
 
-        throw std::runtime_error("Unknown type in `Value::toEmscripten`");
+        return emscripten::val::undefined();
     }
 #endif
 

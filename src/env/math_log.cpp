@@ -10,7 +10,7 @@
 namespace CuraFormulaeEngine::env
 {
 
-[[nodiscard]] eval::Result MathLogFunction::operator()(const std::vector<eval::Value> &args) const noexcept
+[[nodiscard]] eval::Result MathLogFunction::operator()(const std::vector<eval::Value>& args) const noexcept
 {
     if (args.empty() || args.size() > 2)
     {

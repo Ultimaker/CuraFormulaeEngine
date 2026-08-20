@@ -97,11 +97,10 @@ zeus::expected<std::vector<eval::Value>, eval::Error> bindKeywordArguments(
 
     auto args_str = all_args | ranges::views::join(ranges::views::c_str(", ")) | ranges::to<std::string>();
 
-    if (const auto& variable = dynamic_cast<const VariableExpr*>(fn.ptr.get()))
-    {
-        return fmt::format("({}({}))", variable->name, args_str);
-    }
-    return fmt::format("(({})({}))", fn.toString(), args_str);
+  if (const auto &variable = dynamic_cast<const VariableExpr *>(fn.ptr.get())) {
+    return fmt::format("({}({}))", variable->name, args_str);
+  }
+  return fmt::format("(({})({}))", fn.toString(), args_str);
 }
 
 [[nodiscard]] eval::Result FnApplicationExpr::evaluate(const env::Environment* environment) const noexcept
@@ -228,9 +227,9 @@ zeus::expected<std::vector<eval::Value>, eval::Error> bindKeywordArguments(
     return false;
 }
 
-void FnApplicationExpr::visitAll(std::function<void(const Expr&)> visitor) const noexcept
-{
-    visitor(*this);
+void FnApplicationExpr::visitAll(
+    std::function<void(const Expr &)> visitor) const noexcept {
+  visitor(*this);
 
     fn.visitAll(visitor);
     for (const auto& arg : args)

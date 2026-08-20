@@ -13,491 +13,464 @@
 using namespace std::string_view_literals;
 using namespace CuraFormulaeEngine::ast;
 
-TEST_CASE("constant single digit", "[parser, constant]")
-{
-    auto input = "1"sv;
-    const auto expected_ast = make_expr_ptr<IntExpr>(1);
-    const auto expected_eval = CuraFormulaeEngine::eval::Value(int64_t(1));
+TEST_CASE("constant single digit", "[parser, constant]") {
+  auto input = "1"sv;
+  const auto expected_ast = make_expr_ptr<IntExpr>(1);
+  const auto expected_eval = CuraFormulaeEngine::eval::Value(int64_t(1));
 
-    const auto message = CuraFormulaeEngine::parser::parse(input);
-    REQUIRE(message.has_value());
-    const auto &ast = message.value();
-    REQUIRE(ast.deepEq(expected_ast));
-    const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
-    REQUIRE(eval.has_value());
-    REQUIRE(eval.value().deepEq(expected_eval));
+  const auto message = CuraFormulaeEngine::parser::parse(input);
+  REQUIRE(message.has_value());
+  const auto &ast = message.value();
+  REQUIRE(ast.deepEq(expected_ast));
+  const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
+  REQUIRE(eval.has_value());
+  REQUIRE(eval.value().deepEq(expected_eval));
 }
 
-TEST_CASE("constant multi digit", "[parser, constant]")
-{
-    auto input = "12345"sv;
-    const auto expected_ast = make_expr_ptr<IntExpr>(12345);
-    const auto expected_eval = CuraFormulaeEngine::eval::Value(int64_t(12345));
+TEST_CASE("constant multi digit", "[parser, constant]") {
+  auto input = "12345"sv;
+  const auto expected_ast = make_expr_ptr<IntExpr>(12345);
+  const auto expected_eval = CuraFormulaeEngine::eval::Value(int64_t(12345));
 
-    const auto message = CuraFormulaeEngine::parser::parse(input);
-    REQUIRE(message.has_value());
-    const auto &ast = message.value();
-    REQUIRE(ast.deepEq(expected_ast));
-    const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
-    REQUIRE(eval.has_value());
-    REQUIRE(eval.value().deepEq(expected_eval));
+  const auto message = CuraFormulaeEngine::parser::parse(input);
+  REQUIRE(message.has_value());
+  const auto &ast = message.value();
+  REQUIRE(ast.deepEq(expected_ast));
+  const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
+  REQUIRE(eval.has_value());
+  REQUIRE(eval.value().deepEq(expected_eval));
 }
 
-TEST_CASE("float", "[parser, constant]")
-{
-    auto input = "3.14"sv;
-    const auto expected_ast = make_expr_ptr<FloatExpr>(3.14);
-    const auto expected_eval = CuraFormulaeEngine::eval::Value(3.14);
+TEST_CASE("float", "[parser, constant]") {
+  auto input = "3.14"sv;
+  const auto expected_ast = make_expr_ptr<FloatExpr>(3.14);
+  const auto expected_eval = CuraFormulaeEngine::eval::Value(3.14);
 
-    const auto message = CuraFormulaeEngine::parser::parse(input);
-    REQUIRE(message.has_value());
-    const auto &ast = message.value();
-    REQUIRE(ast.deepEq(expected_ast));
-    const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
-    REQUIRE(eval.has_value());
-    REQUIRE(eval.value().deepEq(expected_eval));
+  const auto message = CuraFormulaeEngine::parser::parse(input);
+  REQUIRE(message.has_value());
+  const auto &ast = message.value();
+  REQUIRE(ast.deepEq(expected_ast));
+  const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
+  REQUIRE(eval.has_value());
+  REQUIRE(eval.value().deepEq(expected_eval));
 }
 
-TEST_CASE("float no integer", "[parser, constant]")
-{
-    auto input = ".0"sv;
-    const auto expected_ast = make_expr_ptr<FloatExpr>(0.0);
-    const auto expected_eval = CuraFormulaeEngine::eval::Value(0.0);
+TEST_CASE("float no integer", "[parser, constant]") {
+  auto input = ".0"sv;
+  const auto expected_ast = make_expr_ptr<FloatExpr>(0.0);
+  const auto expected_eval = CuraFormulaeEngine::eval::Value(0.0);
 
-    const auto message = CuraFormulaeEngine::parser::parse(input);
-    REQUIRE(message.has_value());
-    const auto &ast = message.value();
-    REQUIRE(ast.deepEq(expected_ast));
-    const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
-    REQUIRE(eval.has_value());
-    REQUIRE(eval.value().deepEq(expected_eval));
+  const auto message = CuraFormulaeEngine::parser::parse(input);
+  REQUIRE(message.has_value());
+  const auto &ast = message.value();
+  REQUIRE(ast.deepEq(expected_ast));
+  const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
+  REQUIRE(eval.has_value());
+  REQUIRE(eval.value().deepEq(expected_eval));
 }
 
-TEST_CASE("float no decimal", "[parser, constant]")
-{
-    auto input = "0."sv;
-    const auto expected_ast = make_expr_ptr<FloatExpr>(0.0);
-    const auto expected_eval = CuraFormulaeEngine::eval::Value(0.0);
+TEST_CASE("float no decimal", "[parser, constant]") {
+  auto input = "0."sv;
+  const auto expected_ast = make_expr_ptr<FloatExpr>(0.0);
+  const auto expected_eval = CuraFormulaeEngine::eval::Value(0.0);
 
-    const auto message = CuraFormulaeEngine::parser::parse(input);
-    REQUIRE(message.has_value());
-    const auto &ast = message.value();
-    REQUIRE(ast.deepEq(expected_ast));
-    const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
-    REQUIRE(eval.has_value());
-    REQUIRE(eval.value().deepEq(expected_eval));
+  const auto message = CuraFormulaeEngine::parser::parse(input);
+  REQUIRE(message.has_value());
+  const auto &ast = message.value();
+  REQUIRE(ast.deepEq(expected_ast));
+  const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
+  REQUIRE(eval.has_value());
+  REQUIRE(eval.value().deepEq(expected_eval));
 }
 
-TEST_CASE("int scientific", "[.][parser, constant]")
-{
-    auto input = "3e10"sv;
-    const auto expected_ast = make_expr_ptr<FloatExpr>(3e10);
-    const auto expected_eval = CuraFormulaeEngine::eval::Value(3e10);
+TEST_CASE("int scientific", "[.][parser, constant]") {
+  auto input = "3e10"sv;
+  const auto expected_ast = make_expr_ptr<FloatExpr>(3e10);
+  const auto expected_eval = CuraFormulaeEngine::eval::Value(3e10);
 
-    const auto message = CuraFormulaeEngine::parser::parse(input);
-    REQUIRE(message.has_value());
-    const auto &ast = message.value();
-    REQUIRE(ast.deepEq(expected_ast));
-    const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
-    REQUIRE(eval.has_value());
-    REQUIRE(eval.value().deepEq(expected_eval));
+  const auto message = CuraFormulaeEngine::parser::parse(input);
+  REQUIRE(message.has_value());
+  const auto &ast = message.value();
+  REQUIRE(ast.deepEq(expected_ast));
+  const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
+  REQUIRE(eval.has_value());
+  REQUIRE(eval.value().deepEq(expected_eval));
 }
 
-TEST_CASE("int scientific plus", "[.][parser, constant]")
-{
-    auto input = "3e+10"sv;
-    const auto expected_ast = make_expr_ptr<FloatExpr>(3e+10);
-    const auto expected_eval = CuraFormulaeEngine::eval::Value(3e+10);
+TEST_CASE("int scientific plus", "[.][parser, constant]") {
+  auto input = "3e+10"sv;
+  const auto expected_ast = make_expr_ptr<FloatExpr>(3e+10);
+  const auto expected_eval = CuraFormulaeEngine::eval::Value(3e+10);
 
-    const auto message = CuraFormulaeEngine::parser::parse(input);
-    REQUIRE(message.has_value());
-    const auto &ast = message.value();
-    REQUIRE(ast.deepEq(expected_ast));
-    const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
-    REQUIRE(eval.has_value());
-    REQUIRE(eval.value().deepEq(expected_eval));
+  const auto message = CuraFormulaeEngine::parser::parse(input);
+  REQUIRE(message.has_value());
+  const auto &ast = message.value();
+  REQUIRE(ast.deepEq(expected_ast));
+  const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
+  REQUIRE(eval.has_value());
+  REQUIRE(eval.value().deepEq(expected_eval));
 }
 
-TEST_CASE("int scientific minus", "[.][parser, constant]")
-{
-    auto input = "3e-10"sv;
-    const auto expected_ast = make_expr_ptr<FloatExpr>(3e-10);
-    const auto expected_eval = CuraFormulaeEngine::eval::Value(3e-10);
+TEST_CASE("int scientific minus", "[.][parser, constant]") {
+  auto input = "3e-10"sv;
+  const auto expected_ast = make_expr_ptr<FloatExpr>(3e-10);
+  const auto expected_eval = CuraFormulaeEngine::eval::Value(3e-10);
 
-    const auto message = CuraFormulaeEngine::parser::parse(input);
-    REQUIRE(message.has_value());
-    const auto &ast = message.value();
-    REQUIRE(ast.deepEq(expected_ast));
-    const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
-    REQUIRE(eval.has_value());
-    REQUIRE(eval.value().deepEq(expected_eval));
+  const auto message = CuraFormulaeEngine::parser::parse(input);
+  REQUIRE(message.has_value());
+  const auto &ast = message.value();
+  REQUIRE(ast.deepEq(expected_ast));
+  const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
+  REQUIRE(eval.has_value());
+  REQUIRE(eval.value().deepEq(expected_eval));
 }
 
-TEST_CASE("float scientific", "[.][parser, constant]")
-{
-    auto input = "2.7e10"sv;
-    const auto expected_ast = make_expr_ptr<FloatExpr>(2.7e10);
-    const auto expected_eval = CuraFormulaeEngine::eval::Value(2.7e10);
+TEST_CASE("float scientific", "[.][parser, constant]") {
+  auto input = "2.7e10"sv;
+  const auto expected_ast = make_expr_ptr<FloatExpr>(2.7e10);
+  const auto expected_eval = CuraFormulaeEngine::eval::Value(2.7e10);
 
-    const auto message = CuraFormulaeEngine::parser::parse(input);
-    REQUIRE(message.has_value());
-    const auto &ast = message.value();
-    REQUIRE(ast.deepEq(expected_ast));
-    const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
-    REQUIRE(eval.has_value());
-    REQUIRE(eval.value().deepEq(expected_eval));
+  const auto message = CuraFormulaeEngine::parser::parse(input);
+  REQUIRE(message.has_value());
+  const auto &ast = message.value();
+  REQUIRE(ast.deepEq(expected_ast));
+  const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
+  REQUIRE(eval.has_value());
+  REQUIRE(eval.value().deepEq(expected_eval));
 }
 
-TEST_CASE("float scientific plus", "[.][parser, constant]")
-{
-    auto input = "2.7e+10"sv;
-    const auto expected_ast = make_expr_ptr<FloatExpr>(2.7e+10);
-    const auto expected_eval = CuraFormulaeEngine::eval::Value(2.7e+10);
+TEST_CASE("float scientific plus", "[.][parser, constant]") {
+  auto input = "2.7e+10"sv;
+  const auto expected_ast = make_expr_ptr<FloatExpr>(2.7e+10);
+  const auto expected_eval = CuraFormulaeEngine::eval::Value(2.7e+10);
 
-    const auto message = CuraFormulaeEngine::parser::parse(input);
-    REQUIRE(message.has_value());
-    const auto &ast = message.value();
-    REQUIRE(ast.deepEq(expected_ast));
-    const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
-    REQUIRE(eval.has_value());
-    REQUIRE(eval.value().deepEq(expected_eval));
+  const auto message = CuraFormulaeEngine::parser::parse(input);
+  REQUIRE(message.has_value());
+  const auto &ast = message.value();
+  REQUIRE(ast.deepEq(expected_ast));
+  const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
+  REQUIRE(eval.has_value());
+  REQUIRE(eval.value().deepEq(expected_eval));
 }
 
-TEST_CASE("float scientific minus", "[.][parser, constant]")
-{
-    auto input = "2.7e-10"sv;
-    const auto expected_ast = make_expr_ptr<FloatExpr>(2.7e-10);
-    const auto expected_eval = CuraFormulaeEngine::eval::Value(2.7e-10);
+TEST_CASE("float scientific minus", "[.][parser, constant]") {
+  auto input = "2.7e-10"sv;
+  const auto expected_ast = make_expr_ptr<FloatExpr>(2.7e-10);
+  const auto expected_eval = CuraFormulaeEngine::eval::Value(2.7e-10);
 
-    const auto message = CuraFormulaeEngine::parser::parse(input);
-    REQUIRE(message.has_value());
-    const auto &ast = message.value();
-    REQUIRE(ast.deepEq(expected_ast));
-    const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
-    REQUIRE(eval.has_value());
-    REQUIRE(eval.value().deepEq(expected_eval));
+  const auto message = CuraFormulaeEngine::parser::parse(input);
+  REQUIRE(message.has_value());
+  const auto &ast = message.value();
+  REQUIRE(ast.deepEq(expected_ast));
+  const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
+  REQUIRE(eval.has_value());
+  REQUIRE(eval.value().deepEq(expected_eval));
 }
 
-TEST_CASE("constant boolean True", "[parser, constant]")
-{
-    auto input = "True"sv;
-    const auto expected_ast = make_expr_ptr<BoolExpr>(true);
-    const auto expected_eval = CuraFormulaeEngine::eval::Value(true);
+TEST_CASE("constant boolean True", "[parser, constant]") {
+  auto input = "True"sv;
+  const auto expected_ast = make_expr_ptr<BoolExpr>(true);
+  const auto expected_eval = CuraFormulaeEngine::eval::Value(true);
 
-    const auto message = CuraFormulaeEngine::parser::parse(input);
-    REQUIRE(message.has_value());
-    const auto &ast = message.value();
-    REQUIRE(ast.deepEq(expected_ast));
-    const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
-    REQUIRE(eval.has_value());
-    REQUIRE(eval.value().deepEq(expected_eval));
+  const auto message = CuraFormulaeEngine::parser::parse(input);
+  REQUIRE(message.has_value());
+  const auto &ast = message.value();
+  REQUIRE(ast.deepEq(expected_ast));
+  const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
+  REQUIRE(eval.has_value());
+  REQUIRE(eval.value().deepEq(expected_eval));
 }
 
-TEST_CASE("constant boolean", "[parser, constant]")
-{
-    auto input = "False"sv;
-    const auto expected_ast = make_expr_ptr<BoolExpr>(false);
-    const auto expected_eval = CuraFormulaeEngine::eval::Value(false);
+TEST_CASE("constant boolean", "[parser, constant]") {
+  auto input = "False"sv;
+  const auto expected_ast = make_expr_ptr<BoolExpr>(false);
+  const auto expected_eval = CuraFormulaeEngine::eval::Value(false);
 
-    const auto message = CuraFormulaeEngine::parser::parse(input);
-    REQUIRE(message.has_value());
-    const auto &ast = message.value();
-    REQUIRE(ast.deepEq(expected_ast));
-    const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
-    REQUIRE(eval.has_value());
-    REQUIRE(eval.value().deepEq(expected_eval));
+  const auto message = CuraFormulaeEngine::parser::parse(input);
+  REQUIRE(message.has_value());
+  const auto &ast = message.value();
+  REQUIRE(ast.deepEq(expected_ast));
+  const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
+  REQUIRE(eval.has_value());
+  REQUIRE(eval.value().deepEq(expected_eval));
 }
 
-TEST_CASE("negate int", "[parser, neg]")
-{
-    auto input = "-1"sv;
-    const auto expected_ast = -make_expr_ptr<IntExpr>(1);
-    const auto expected_eval = CuraFormulaeEngine::eval::Value(int64_t(-1));
+TEST_CASE("negate int", "[parser, neg]") {
+  auto input = "-1"sv;
+  const auto expected_ast = -make_expr_ptr<IntExpr>(1);
+  const auto expected_eval = CuraFormulaeEngine::eval::Value(int64_t(-1));
 
-    const auto message = CuraFormulaeEngine::parser::parse(input);
-    REQUIRE(message.has_value());
-    const auto &ast = message.value();
-    REQUIRE(ast.deepEq(expected_ast));
-    const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
-    REQUIRE(eval.has_value());
-    REQUIRE(eval.value().deepEq(expected_eval));
+  const auto message = CuraFormulaeEngine::parser::parse(input);
+  REQUIRE(message.has_value());
+  const auto &ast = message.value();
+  REQUIRE(ast.deepEq(expected_ast));
+  const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
+  REQUIRE(eval.has_value());
+  REQUIRE(eval.value().deepEq(expected_eval));
 }
 
-TEST_CASE("negate float", "[parser, neg]")
-{
-    auto input = "-1.0"sv;
-    const auto expected_ast = -make_expr_ptr<FloatExpr>(1.0);
-    const auto expected_eval = CuraFormulaeEngine::eval::Value(-1.0);
+TEST_CASE("negate float", "[parser, neg]") {
+  auto input = "-1.0"sv;
+  const auto expected_ast = -make_expr_ptr<FloatExpr>(1.0);
+  const auto expected_eval = CuraFormulaeEngine::eval::Value(-1.0);
 
-    const auto message = CuraFormulaeEngine::parser::parse(input);
-    REQUIRE(message.has_value());
-    const auto &ast = message.value();
-    REQUIRE(ast.deepEq(expected_ast));
-    const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
-    REQUIRE(eval.has_value());
-    REQUIRE(eval.value().deepEq(expected_eval));
+  const auto message = CuraFormulaeEngine::parser::parse(input);
+  REQUIRE(message.has_value());
+  const auto &ast = message.value();
+  REQUIRE(ast.deepEq(expected_ast));
+  const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
+  REQUIRE(eval.has_value());
+  REQUIRE(eval.value().deepEq(expected_eval));
 }
 
-TEST_CASE("negate bool false", "[parser, neg]")
-{
-    auto input = "-False"sv;
-    const auto expected_ast = -make_expr_ptr<BoolExpr>(false);
-    const auto expected_eval = CuraFormulaeEngine::eval::Value(int64_t(0));
+TEST_CASE("negate bool false", "[parser, neg]") {
+  auto input = "-False"sv;
+  const auto expected_ast = -make_expr_ptr<BoolExpr>(false);
+  const auto expected_eval = CuraFormulaeEngine::eval::Value(int64_t(0));
 
-    const auto message = CuraFormulaeEngine::parser::parse(input);
-    REQUIRE(message.has_value());
-    const auto &ast = message.value();
-    REQUIRE(ast.deepEq(expected_ast));
-    const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
-    REQUIRE(eval.has_value());
-    REQUIRE(eval.value().deepEq(expected_eval));
+  const auto message = CuraFormulaeEngine::parser::parse(input);
+  REQUIRE(message.has_value());
+  const auto &ast = message.value();
+  REQUIRE(ast.deepEq(expected_ast));
+  const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
+  REQUIRE(eval.has_value());
+  REQUIRE(eval.value().deepEq(expected_eval));
 }
 
-TEST_CASE("negate bool true", "[parser, neg]")
-{
-    auto input = "-[]"sv;
-    const auto expected_ast = -make_list_expr();
-    const auto message = CuraFormulaeEngine::parser::parse(input);
-    REQUIRE(message.has_value());
-    const auto &ast = message.value();
-    REQUIRE(ast.deepEq(expected_ast));
-    const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
-    REQUIRE_FALSE(eval.has_value());
+TEST_CASE("negate bool true", "[parser, neg]") {
+  auto input = "-[]"sv;
+  const auto expected_ast = -make_list_expr();
+  const auto message = CuraFormulaeEngine::parser::parse(input);
+  REQUIRE(message.has_value());
+  const auto &ast = message.value();
+  REQUIRE(ast.deepEq(expected_ast));
+  const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
+  REQUIRE_FALSE(eval.has_value());
 }
 
-TEST_CASE("inverse int 1", "[parser, not]")
-{
-    auto input = "not 1"sv;
-    const auto expected_ast = !make_expr_ptr<IntExpr>(1);
-    const auto expected_eval = CuraFormulaeEngine::eval::Value(false);
+TEST_CASE("inverse int 1", "[parser, not]") {
+  auto input = "not 1"sv;
+  const auto expected_ast = !make_expr_ptr<IntExpr>(1);
+  const auto expected_eval = CuraFormulaeEngine::eval::Value(false);
 
-    const auto message = CuraFormulaeEngine::parser::parse(input);
-    REQUIRE(message.has_value());
-    const auto &ast = message.value();
-    REQUIRE(ast.deepEq(expected_ast));
-    const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
-    REQUIRE(eval.has_value());
-    REQUIRE(eval.value().deepEq(expected_eval));
+  const auto message = CuraFormulaeEngine::parser::parse(input);
+  REQUIRE(message.has_value());
+  const auto &ast = message.value();
+  REQUIRE(ast.deepEq(expected_ast));
+  const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
+  REQUIRE(eval.has_value());
+  REQUIRE(eval.value().deepEq(expected_eval));
 }
 
-TEST_CASE("inverse float 1", "[parser, not]")
-{
-    auto input = "not 1.0"sv;
-    const auto expected_ast = !make_expr_ptr<FloatExpr>(1.0);
-    const auto expected_eval = CuraFormulaeEngine::eval::Value(false);
+TEST_CASE("inverse float 1", "[parser, not]") {
+  auto input = "not 1.0"sv;
+  const auto expected_ast = !make_expr_ptr<FloatExpr>(1.0);
+  const auto expected_eval = CuraFormulaeEngine::eval::Value(false);
 
-    const auto message = CuraFormulaeEngine::parser::parse(input);
-    REQUIRE(message.has_value());
-    const auto &ast = message.value();
-    REQUIRE(ast.deepEq(expected_ast));
-    const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
-    REQUIRE(eval.has_value());
-    REQUIRE(eval.value().deepEq(expected_eval));
+  const auto message = CuraFormulaeEngine::parser::parse(input);
+  REQUIRE(message.has_value());
+  const auto &ast = message.value();
+  REQUIRE(ast.deepEq(expected_ast));
+  const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
+  REQUIRE(eval.has_value());
+  REQUIRE(eval.value().deepEq(expected_eval));
 }
 
-TEST_CASE("inverse int 0", "[parser, not]")
-{
-    auto input = "not 0"sv;
-    const auto expected_ast = !make_expr_ptr<IntExpr>(0);
-    const auto expected_eval = CuraFormulaeEngine::eval::Value(true);
+TEST_CASE("inverse int 0", "[parser, not]") {
+  auto input = "not 0"sv;
+  const auto expected_ast = !make_expr_ptr<IntExpr>(0);
+  const auto expected_eval = CuraFormulaeEngine::eval::Value(true);
 
-    const auto message = CuraFormulaeEngine::parser::parse(input);
-    REQUIRE(message.has_value());
-    const auto &ast = message.value();
-    REQUIRE(ast.deepEq(expected_ast));
-    const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
-    REQUIRE(eval.has_value());
-    REQUIRE(eval.value().deepEq(expected_eval));
+  const auto message = CuraFormulaeEngine::parser::parse(input);
+  REQUIRE(message.has_value());
+  const auto &ast = message.value();
+  REQUIRE(ast.deepEq(expected_ast));
+  const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
+  REQUIRE(eval.has_value());
+  REQUIRE(eval.value().deepEq(expected_eval));
 }
 
-TEST_CASE("inverse float 0", "[parser, not]")
-{
-    auto input = "not 0.0"sv;
-    const auto expected_ast = !make_expr_ptr<FloatExpr>(0.0);
-    const auto expected_eval = CuraFormulaeEngine::eval::Value(true);
+TEST_CASE("inverse float 0", "[parser, not]") {
+  auto input = "not 0.0"sv;
+  const auto expected_ast = !make_expr_ptr<FloatExpr>(0.0);
+  const auto expected_eval = CuraFormulaeEngine::eval::Value(true);
 
-    const auto message = CuraFormulaeEngine::parser::parse(input);
-    REQUIRE(message.has_value());
-    const auto &ast = message.value();
-    REQUIRE(ast.deepEq(expected_ast));
-    const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
-    REQUIRE(eval.has_value());
-    REQUIRE(eval.value().deepEq(expected_eval));
+  const auto message = CuraFormulaeEngine::parser::parse(input);
+  REQUIRE(message.has_value());
+  const auto &ast = message.value();
+  REQUIRE(ast.deepEq(expected_ast));
+  const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
+  REQUIRE(eval.has_value());
+  REQUIRE(eval.value().deepEq(expected_eval));
 }
 
-TEST_CASE("inverse bool false", "[parser, not]")
-{
-    auto input = "not False"sv;
-    const auto expected_ast = !make_expr_ptr<BoolExpr>(false);
-    const auto expected_eval = CuraFormulaeEngine::eval::Value(true);
+TEST_CASE("inverse bool false", "[parser, not]") {
+  auto input = "not False"sv;
+  const auto expected_ast = !make_expr_ptr<BoolExpr>(false);
+  const auto expected_eval = CuraFormulaeEngine::eval::Value(true);
 
-    const auto message = CuraFormulaeEngine::parser::parse(input);
-    REQUIRE(message.has_value());
-    const auto &ast = message.value();
-    REQUIRE(ast.deepEq(expected_ast));
-    const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
-    REQUIRE(eval.has_value());
-    REQUIRE(eval.value().deepEq(expected_eval));
+  const auto message = CuraFormulaeEngine::parser::parse(input);
+  REQUIRE(message.has_value());
+  const auto &ast = message.value();
+  REQUIRE(ast.deepEq(expected_ast));
+  const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
+  REQUIRE(eval.has_value());
+  REQUIRE(eval.value().deepEq(expected_eval));
 }
 
-TEST_CASE("inverse bool true", "[parser, not]")
-{
-    auto input = "not True"sv;
-    const auto expected_ast = !make_expr_ptr<BoolExpr>(true);
-    const auto expected_eval = CuraFormulaeEngine::eval::Value(false);
-    const auto message = CuraFormulaeEngine::parser::parse(input);
-    REQUIRE(message.has_value());
-    const auto &ast = message.value();
+TEST_CASE("inverse bool true", "[parser, not]") {
+  auto input = "not True"sv;
+  const auto expected_ast = !make_expr_ptr<BoolExpr>(true);
+  const auto expected_eval = CuraFormulaeEngine::eval::Value(false);
+  const auto message = CuraFormulaeEngine::parser::parse(input);
+  REQUIRE(message.has_value());
+  const auto &ast = message.value();
 
-    REQUIRE(ast.deepEq(expected_ast));
-    const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
-    REQUIRE(eval.has_value());
-    REQUIRE(eval.value().deepEq(expected_eval));
+  REQUIRE(ast.deepEq(expected_ast));
+  const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
+  REQUIRE(eval.has_value());
+  REQUIRE(eval.value().deepEq(expected_eval));
 }
 
-TEST_CASE("inverse empty string", "[parser, not]")
-{
-    auto input = "not \"\""sv;
-    const auto expected_ast = !make_expr_ptr<StringExpr>("");
-    const auto expected_eval = CuraFormulaeEngine::eval::Value(true);
+TEST_CASE("inverse empty string", "[parser, not]") {
+  auto input = "not \"\""sv;
+  const auto expected_ast = !make_expr_ptr<StringExpr>("");
+  const auto expected_eval = CuraFormulaeEngine::eval::Value(true);
 
-    const auto message = CuraFormulaeEngine::parser::parse(input);
-    REQUIRE(message.has_value());
-    const auto &ast = message.value();
-    REQUIRE(ast.deepEq(expected_ast));
-    const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
-    REQUIRE(eval.has_value());
-    REQUIRE(eval.value().deepEq(expected_eval));
+  const auto message = CuraFormulaeEngine::parser::parse(input);
+  REQUIRE(message.has_value());
+  const auto &ast = message.value();
+  REQUIRE(ast.deepEq(expected_ast));
+  const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
+  REQUIRE(eval.has_value());
+  REQUIRE(eval.value().deepEq(expected_eval));
 }
 
-TEST_CASE("inverse string", "[parser, not]")
-{
-    auto input = "not \"foo\""sv;
-    const auto expected_ast = !make_expr_ptr<StringExpr>("foo");
-    const auto expected_eval = CuraFormulaeEngine::eval::Value(false);
+TEST_CASE("inverse string", "[parser, not]") {
+  auto input = "not \"foo\""sv;
+  const auto expected_ast = !make_expr_ptr<StringExpr>("foo");
+  const auto expected_eval = CuraFormulaeEngine::eval::Value(false);
 
-    const auto message = CuraFormulaeEngine::parser::parse(input);
-    REQUIRE(message.has_value());
-    const auto &ast = message.value();
-    REQUIRE(ast.deepEq(expected_ast));
-    const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
-    REQUIRE(eval.has_value());
-    REQUIRE(eval.value().deepEq(expected_eval));
+  const auto message = CuraFormulaeEngine::parser::parse(input);
+  REQUIRE(message.has_value());
+  const auto &ast = message.value();
+  REQUIRE(ast.deepEq(expected_ast));
+  const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
+  REQUIRE(eval.has_value());
+  REQUIRE(eval.value().deepEq(expected_eval));
 }
 
-TEST_CASE("inverse bool empty list", "[parser, not]")
-{
-    auto input = "not []"sv;
-    const auto expected_ast = !make_list_expr();
-    const auto expected_eval = CuraFormulaeEngine::eval::Value(true);
+TEST_CASE("inverse bool empty list", "[parser, not]") {
+  auto input = "not []"sv;
+  const auto expected_ast = !make_list_expr();
+  const auto expected_eval = CuraFormulaeEngine::eval::Value(true);
 
-    const auto message = CuraFormulaeEngine::parser::parse(input);
-    REQUIRE(message.has_value());
-    const auto &ast = message.value();
-    REQUIRE(ast.deepEq(expected_ast));
-    const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
-    REQUIRE(eval.has_value());
-    REQUIRE(eval.value().deepEq(expected_eval));
+  const auto message = CuraFormulaeEngine::parser::parse(input);
+  REQUIRE(message.has_value());
+  const auto &ast = message.value();
+  REQUIRE(ast.deepEq(expected_ast));
+  const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
+  REQUIRE(eval.has_value());
+  REQUIRE(eval.value().deepEq(expected_eval));
 }
 
-TEST_CASE("inverse bool list", "[parser, not]")
-{
-    auto input = "not [1]"sv;
-    const auto expected_ast = !make_list_expr(make_expr_ptr<IntExpr>(int64_t(1)));
-    const auto expected_eval = CuraFormulaeEngine::eval::Value(false);
+TEST_CASE("inverse bool list", "[parser, not]") {
+  auto input = "not [1]"sv;
+  const auto expected_ast = !make_list_expr(make_expr_ptr<IntExpr>(int64_t(1)));
+  const auto expected_eval = CuraFormulaeEngine::eval::Value(false);
 
-    const auto message = CuraFormulaeEngine::parser::parse(input);
-    REQUIRE(message.has_value());
-    const auto &ast = message.value();
-    REQUIRE(ast.deepEq(expected_ast));
-    const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
-    REQUIRE(eval.has_value());
-    REQUIRE(eval.value().deepEq(expected_eval));
+  const auto message = CuraFormulaeEngine::parser::parse(input);
+  REQUIRE(message.has_value());
+  const auto &ast = message.value();
+  REQUIRE(ast.deepEq(expected_ast));
+  const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
+  REQUIRE(eval.has_value());
+  REQUIRE(eval.value().deepEq(expected_eval));
 }
 
-TEST_CASE("member empty list", "[parser, member]")
-{
-    auto input = "1 in []"sv;
+TEST_CASE("member empty list", "[parser, member]") {
+  auto input = "1 in []"sv;
 
-    std::vector<ExprPtr> numbers;
-    numbers.push_back(make_expr_ptr<IntExpr>(int64_t(1)));
-    numbers.push_back(make_list_expr());
-    const auto expected_ast = make_expr_ptr<ComparisonChainExpr>(std::move(numbers), std::vector{ComparisonOperators::Member});
+  std::vector<ExprPtr> numbers;
+  numbers.push_back(make_expr_ptr<IntExpr>(int64_t(1)));
+  numbers.push_back(make_list_expr());
+  const auto expected_ast = make_expr_ptr<ComparisonChainExpr>(
+      std::move(numbers), std::vector{ComparisonOperators::Member});
 
-    const auto expected_eval = CuraFormulaeEngine::eval::Value(false);
+  const auto expected_eval = CuraFormulaeEngine::eval::Value(false);
 
-    const auto message = CuraFormulaeEngine::parser::parse(input);
-    REQUIRE(message.has_value());
-    const auto &ast = message.value();
-    REQUIRE(ast.deepEq(expected_ast));
-    const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
-    REQUIRE(eval.has_value());
-    REQUIRE(eval.value().deepEq(expected_eval));
+  const auto message = CuraFormulaeEngine::parser::parse(input);
+  REQUIRE(message.has_value());
+  const auto &ast = message.value();
+  REQUIRE(ast.deepEq(expected_ast));
+  const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
+  REQUIRE(eval.has_value());
+  REQUIRE(eval.value().deepEq(expected_eval));
 }
 
-TEST_CASE("member list", "[parser, member]")
-{
-    auto input = "1 in [1]"sv;
+TEST_CASE("member list", "[parser, member]") {
+  auto input = "1 in [1]"sv;
 
-    std::vector<ExprPtr> expressions;
-    expressions.push_back(make_expr_ptr<IntExpr>(int64_t(1)));
-    std::vector<ExprPtr> numbers;
-    numbers.push_back(make_expr_ptr<IntExpr>(int64_t(1)));
-    expressions.push_back(make_list_expr(make_expr_ptr<IntExpr>(int64_t(1))));
+  std::vector<ExprPtr> expressions;
+  expressions.push_back(make_expr_ptr<IntExpr>(int64_t(1)));
+  std::vector<ExprPtr> numbers;
+  numbers.push_back(make_expr_ptr<IntExpr>(int64_t(1)));
+  expressions.push_back(make_list_expr(make_expr_ptr<IntExpr>(int64_t(1))));
 
-    std::vector<ComparisonOperators> operators = {ComparisonOperators::Member};
+  std::vector<ComparisonOperators> operators = {ComparisonOperators::Member};
 
-    const auto expected_ast = make_expr_ptr<ComparisonChainExpr>(std::move(expressions), std::move(operators));
+  const auto expected_ast = make_expr_ptr<ComparisonChainExpr>(
+      std::move(expressions), std::move(operators));
 
-    const auto expected_eval = CuraFormulaeEngine::eval::Value(true);
+  const auto expected_eval = CuraFormulaeEngine::eval::Value(true);
 
-    const auto message = CuraFormulaeEngine::parser::parse(input);
-    REQUIRE(message.has_value());
-    const auto &ast = message.value();
-    REQUIRE(ast.deepEq(expected_ast));
-    const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
-    REQUIRE(eval.has_value());
-    REQUIRE(eval.value().deepEq(expected_eval));
+  const auto message = CuraFormulaeEngine::parser::parse(input);
+  REQUIRE(message.has_value());
+  const auto &ast = message.value();
+  REQUIRE(ast.deepEq(expected_ast));
+  const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
+  REQUIRE(eval.has_value());
+  REQUIRE(eval.value().deepEq(expected_eval));
 }
 
-TEST_CASE("not member empty list", "[parser, member]")
-{
-    auto input = "1 not in []"sv;
+TEST_CASE("not member empty list", "[parser, member]") {
+  auto input = "1 not in []"sv;
 
-    std::vector<ExprPtr> numbers;
-    numbers.push_back(make_expr_ptr<IntExpr>(int64_t(1)));
+  std::vector<ExprPtr> numbers;
+  numbers.push_back(make_expr_ptr<IntExpr>(int64_t(1)));
 
-    numbers.push_back(make_list_expr());
+  numbers.push_back(make_list_expr());
 
-    const auto expected_ast = make_expr_ptr<ComparisonChainExpr>(std::move(numbers), std::vector{ComparisonOperators::NotMember});
+  const auto expected_ast = make_expr_ptr<ComparisonChainExpr>(
+      std::move(numbers), std::vector{ComparisonOperators::NotMember});
 
-    const auto expected_eval = CuraFormulaeEngine::eval::Value(true);
+  const auto expected_eval = CuraFormulaeEngine::eval::Value(true);
 
-    const auto message = CuraFormulaeEngine::parser::parse(input);
-    REQUIRE(message.has_value());
-    const auto &ast = message.value();
-    REQUIRE(ast.deepEq(expected_ast));
-    const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
-    REQUIRE(eval.has_value());
-    REQUIRE(eval.value().deepEq(expected_eval));
+  const auto message = CuraFormulaeEngine::parser::parse(input);
+  REQUIRE(message.has_value());
+  const auto &ast = message.value();
+  REQUIRE(ast.deepEq(expected_ast));
+  const auto eval = ast.evaluate(&CuraFormulaeEngine::env::std_env);
+  REQUIRE(eval.has_value());
+  REQUIRE(eval.value().deepEq(expected_eval));
 }
 
-TEST_CASE("not member list", "[parser, member]")
-{
-    auto input = "1 not in [1]"sv;
+TEST_CASE("not member list", "[parser, member]") {
+  auto input = "1 not in [1]"sv;
 
-    std::vector<ExprPtr> expressions;
-    expressions.push_back(make_expr_ptr<IntExpr>(int64_t(1)));
+  std::vector<ExprPtr> expressions;
+  expressions.push_back(make_expr_ptr<IntExpr>(int64_t(1)));
 
-    std::vector<ExprPtr> numbers;
-    numbers.push_back(make_expr_ptr<IntExpr>(int64_t(1)));
-    expressions.push_back(make_list_expr(make_expr_ptr<IntExpr>(int64_t(1))));
+  std::vector<ExprPtr> numbers;
+  numbers.push_back(make_expr_ptr<IntExpr>(int64_t(1)));
+  expressions.push_back(make_list_expr(make_expr_ptr<IntExpr>(int64_t(1))));
 
-    std::vector<ComparisonOperators> operators = {ComparisonOperators::NotMember};
+  std::vector<ComparisonOperators> operators = {ComparisonOperators::NotMember};
 
-    const auto expected_ast = make_expr_ptr<ComparisonChainExpr>(std::move(expressions), std::move(operators));
+  const auto expected_ast = make_expr_ptr<ComparisonChainExpr>(
+      std::move(expressions), std::move(operators));
 
-    const auto expected_eval = CuraFormulaeEngine::eval::Value(false);
+  const auto expected_eval = CuraFormulaeEngine::eval::Value(false);
 
     const auto message = CuraFormulaeEngine::parser::parse(input);
     REQUIRE(message.has_value());

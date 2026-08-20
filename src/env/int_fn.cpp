@@ -7,8 +7,7 @@
 #include <variant>
 #include <vector>
 
-namespace CuraFormulaeEngine::env
-{
+namespace CuraFormulaeEngine::env {
 
 [[nodiscard]] eval::Result IntFunction::operator()(const std::vector<eval::Value> &args) const noexcept
 {

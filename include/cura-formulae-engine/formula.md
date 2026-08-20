@@ -122,7 +122,7 @@ int main(int argc, const char** argv)
 
     CuraFormulaeEngine::env::LocalEnvironment custom_env { &CuraFormulaeEngine::env::std_env };
     custom_env.set("x", CuraFormulaeEngine::eval::Value { 2L });
-    
+
     if (!message.has_value())
     {
         spdlog::warn("Parse error");
@@ -131,7 +131,7 @@ int main(int argc, const char** argv)
 
     const auto& expr = message.value();
     const auto eval_result = expr.evaluate(custom_env);
-    
+
     if (!eval_result.has_value())
     {
         const auto error = eval_result.error();

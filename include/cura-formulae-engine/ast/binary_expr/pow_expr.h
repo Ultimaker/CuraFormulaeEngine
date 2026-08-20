@@ -5,16 +5,15 @@
 
 #include <string>
 
-namespace CuraFormulaeEngine::ast
-{
+namespace CuraFormulaeEngine::ast {
 
-struct PowExpr final : BinaryExpr
-{
-    using BinaryExpr::BinaryExpr;
+struct PowExpr final : BinaryExpr {
+  using BinaryExpr::BinaryExpr;
 
-    [[nodiscard]] std::string getOpIdentifier() const noexcept final;
+  [[nodiscard]] std::string getOpIdentifier() const noexcept final;
 
-    eval::Result evaluate(eval::Value& lhs, eval::Value& rhs) const noexcept final;
+  eval::Result evaluate(eval::Value &lhs,
+                        eval::Value &rhs) const noexcept final;
 };
 
 } // namespace CuraFormulaeEngine::ast
