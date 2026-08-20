@@ -35,13 +35,29 @@ def offending_command(command: str) -> str | None:
     except ValueError:
         tokens = command.split()
 
+    COMMAND_SEPARATORS = {";", "&&", "||", "|", "&"}
+    is_command_position = True
+
     for index, token in enumerate(tokens):
+        if token in COMMAND_SEPARATORS:
+            is_command_position = True
+            continue
+
+        if not is_command_position:
+            continue
+
+        is_command_position = False
         name = token.rsplit("/", 1)[-1]
         if name in BY_NAME:
             return f"`{name}` selects processes by name"
         if name == "kill":
             rest = tokens[index + 1:]
-            targets = [t for t in rest if not t.startswith("-")]
+            targets = []
+            for t in rest:
+                if t in COMMAND_SEPARATORS:
+                    break
+                if not t.startswith("-"):
+                    targets.append(t)
             if not targets:
                 continue
             if any(SUBSTITUTION.search(t) for t in targets):
@@ -116,11 +132,11 @@ def main() -> int:
     if not command:
         return 0
 
-    # A whole-command substitution can hide the verb; check the raw text too.
+    # A whole-command substitution can hide the verb; check if pkill/killall is invoked inside substitution.
     reason = offending_command(command)
     if reason is None and SUBSTITUTION.search(command):
         for name in BY_NAME:
-            if re.search(rf"\b{name}\b", command):
+            if re.search(rf"(?:\$\(|\`)\s*(?:/usr/bin/)?{name}\b", command):
                 reason = f"`{name}` selects processes by name"
                 break
 
