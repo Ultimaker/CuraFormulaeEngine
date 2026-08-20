@@ -5,15 +5,15 @@ on:
     paths:
       - 'src/**'
       - 'include/**'
-      - 'cli/**'
-      - 'pyUvula/**'
+      - 'apps/**'
       - 'conanfile.py'
       - 'conandata.yml'
       - 'CMakeLists.txt'
-      - '.github/workflows/conan-package.yml'
+      - '.github/workflows/package.yml'
     branches:
       - main
       - master
+      - 'UC-*'
       - 'NP-*'
       - 'CURA-*'
       - 'PP-*'
